@@ -8,7 +8,7 @@ module Draw =
     let mutable private drawablesToUpdate:ObjectId list = []
     let mutable private drawablesToAdd:(GameResources -> SpriteState) list = []
     let mutable private drawablesToRemove:ObjectId list = []
-    let mutable private debugLinesToDraw:Vec2<px> list list = []
+    let mutable private debugLinesToDraw:Vec2<m> list list = []
 
     let queueSpriteUpdate objectId =
         drawablesToUpdate <- List.Cons (objectId, drawablesToUpdate)

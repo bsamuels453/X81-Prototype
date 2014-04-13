@@ -69,10 +69,54 @@ module Update =
         
         {X=frictionedX; Y=frictionedY}
 
-    let movementTick prevShipState keyboardState =
-        let rotAccel = applyFriction prevShipState.RotVelocity (getShipInputRotAccel keyboardState) Consts.rotAccel
-        let newShipRotVel = prevShipState.RotVelocity + rotAccel * (1.0<s>/60.0)
-        let newShipRot = prevShipState.Rotation + newShipRotVel * (1.0<s>/60.0)
+    let clampAngle (ang:float<rad>) =
+        let rec clamp ang =
+            if ang >= Math.PI * 1.0<rad> then
+                clamp (ang - (Math.PI * 2.0<rad>))
+            elif ang <= Math.PI * -1.0<rad> then
+                clamp (ang + (Math.PI * 2.0<rad>))
+            else ang
+        clamp ang
+
+    let calcRotAccelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
+        let mousePos = mouseState.Position
+        
+        let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
+        let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad>
+
+        Draw.addDebugLine [prevShipState.Position; {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>}]
+        let l = (Vec2<m>.getFromAngle prevShipState.Rotation 50.0<m>) + prevShipState.Position
+        Draw.addDebugLine [l; prevShipState.Position]
+
+        let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
+        let angleDist = abs(angleDiff)
+        let slowingRadius = 0.001<rad>
+
+        let vel = 
+            if angleDist < slowingRadius then
+                ()
+                angleDiff * 5.0<rad> * (angleDist / slowingRadius)
+            else
+                ()
+                angleDiff * 5.0<rad>
+
+        vel * 1.0</(rad*s)>
+
+
+    let rotationTick (prevShipState:ShipState) keyboardState mouseState=
+        let rotVel =
+            if mouseState.RightPressed then
+                calcRotAccelFromMousepos prevShipState mouseState
+            else
+                let rawRotAccel = getShipInputRotAccel keyboardState
+                let accel = applyFriction prevShipState.RotVelocity rawRotAccel Consts.rotAccel
+                prevShipState.RotVelocity + accel * (1.0<s>/60.0)
+
+        let newShipRot = prevShipState.Rotation + rotVel * (1.0<s>/60.0)
+        (newShipRot, rotVel, prevShipState.RotVelocity )
+
+    let movementTick (prevShipState:ShipState) keyboardState mouseState=
+        let (newShipRot, newShipRotVel, oldRotVel) = rotationTick prevShipState keyboardState mouseState
 
         let linShipAccel = applyLinFriction prevShipState.Velocity (getShipInputLinearAccel newShipRot keyboardState)
 
@@ -81,8 +125,8 @@ module Update =
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel}
 
 
-    let playerShipTick (prevShipState:ShipState) keyboardState =
-        let postMovementTick = movementTick prevShipState keyboardState
+    let playerShipTick (prevShipState:ShipState) keyboardState mouseState=
+        let postMovementTick = movementTick prevShipState keyboardState mouseState
 
         postMovementTick
     ()
