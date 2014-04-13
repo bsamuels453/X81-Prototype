@@ -47,13 +47,18 @@ let main argv =
 
     SpriteGen.genDefaultScene gameState
     let stopwatch = new Stopwatch()
+    let screenToWorld gameState mousePos =
+        {
+            X=mousePos.X * 1.0<m/px> + gameState.PlayerShip.Position.X - (float Consts.screenWidth) *  0.5<m>
+            Y= mousePos.Y * 1.0<m/px> + gameState.PlayerShip.Position.Y - (float Consts.screenHeight) * 0.5<m>
+        }
 
     while win.IsOpen() do
         throttleTo60fps()
         stopwatch.Start()
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
-        let mouseState = Control.pollMouse win
+        let mouseState = Control.pollMouse win (screenToWorld gameState)
 
         let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}

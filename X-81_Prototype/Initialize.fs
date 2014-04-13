@@ -23,7 +23,7 @@ module Initialize =
     let genPlayerShip() : ShipState=
         {
             Id = GameFuncs.generateObjectId(); 
-            Position = {X=350.0<m>; Y=350.0<m>}
+            Position = {X=400.0<m>; Y=300.0<m>}
             Velocity = {X=0.0<m/s>; Y=0.0<m/s>}
             Rotation = 0.0<rad>
             RotVelocity = 0.0<rad/s>

@@ -53,7 +53,8 @@ module GameTypes =
         LeftPressed : bool
         RightPressed : bool
         MiddlePressed : bool
-        Position : Vec2<px>
+        ScreenPosition : Vec2<px>
+        WorldPosition : Vec2<m>
     }
 
     type ShipAttribs = {

@@ -19,7 +19,7 @@ module Draw =
     let queueSpriteDeletion objectId =
         drawablesToRemove <- List.Cons (objectId, drawablesToRemove)
 
-    let addDebugLine vertLi =
+    let addWorldDebugLine vertLi =
         debugLinesToDraw <- List.Cons (vertLi, debugLinesToDraw)
 
     let private addSprites drawableSprites spritesToAdd textures =
@@ -70,10 +70,23 @@ module Draw =
         let updatedSprites = updateSprites tempRenderState gameState filteredSprites drawablesToUpdate
         drawablesToUpdate <- []
 
+        renderState.View.Center <- gameState.PlayerShip.Position.toVec2f()
+
         {renderState with Sprites = List.ofArray updatedSprites}
 
     let drawDebugLines (win:RenderWindow) =
-        let lineList = debugLinesToDraw |> List.map (fun li -> li |> List.map (fun l -> new Vertex(l.toVec2f())) |> Array.ofList) |> Array.ofList
+        let view = win.GetView()
+        let offsetX = view.Center.X
+        let offsetY = view.Center.Y
+
+        let lineList = 
+            debugLinesToDraw 
+            |> List.map (fun li -> 
+                li 
+                |> List.map (fun l -> new Vertex(l.toVec2f())) 
+                |> Array.ofList) 
+            |> Array.ofList
+
         lineList |> Array.map (fun li -> win.Draw(li, PrimitiveType.Lines)) |> ignore
         debugLinesToDraw <- []
         ()

@@ -91,15 +91,18 @@ module Update =
             else ang
         clamp ang
 
+    let private getWorldMousePos gameState mousePos =
+        ()
+
     let private calcRotAccelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
-        let mousePos = mouseState.Position
+        let mousePos = mouseState.WorldPosition
         
         let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
         let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad> + Math.PI / 2.0 * 1.0<rad>
 
-        Draw.addDebugLine [prevShipState.Position; {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>}]
+        Draw.addWorldDebugLine [prevShipState.Position; mousePos]
         let l = (Vec2<m>.getFromAngle (prevShipState.Rotation - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + prevShipState.Position
-        Draw.addDebugLine [l; prevShipState.Position]
+        Draw.addWorldDebugLine [l; prevShipState.Position]
 
         let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
         let angleDist = abs(angleDiff)
