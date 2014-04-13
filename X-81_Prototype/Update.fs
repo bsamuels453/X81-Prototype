@@ -126,18 +126,18 @@ module Update =
                 prevShipState.RotVelocity + accel * (1.0<s>/60.0)
 
         let newShipRot = prevShipState.Rotation + rotVel * (1.0<s>/60.0)
-        (newShipRot, rotVel, prevShipState.RotVelocity )
+        (newShipRot, rotVel)
 
     let private linearTick (prevShipState:ShipState) keyboardState mouseState =
         let newVelCeil =  getLinearVelCeil prevShipState.Velocity prevShipState.Rotation keyboardState prevShipState.Attribs
 
         let newShipSpeed = ((prevShipState.Velocity * (20.0 - 1.0)) + newVelCeil)/20.0
-        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0) + 0.5 * newVelCeil * (1.0<s>/60.0) * (1.0/60.0)
+        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0)
         (newShipPos, newShipSpeed)
 
 
     let movementTick (prevShipState:ShipState) keyboardState mouseState=
-        let (newShipRot, newShipRotVel, oldRotVel) = rotationTick prevShipState keyboardState mouseState
+        let (newShipRot, newShipRotVel) = rotationTick prevShipState keyboardState mouseState
 
         let (newShipPos, newShipSpeed) = linearTick prevShipState keyboardState mouseState
 
