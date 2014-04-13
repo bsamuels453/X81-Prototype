@@ -82,7 +82,7 @@ module Update =
         
         {X=frictionedX; Y=frictionedY}
 
-    let clampAngle (ang:float<rad>) =
+    let private clampAngle (ang:float<rad>) =
         let rec clamp ang =
             if ang >= Math.PI * 1.0<rad> then
                 clamp (ang - (Math.PI * 2.0<rad>))
@@ -91,7 +91,7 @@ module Update =
             else ang
         clamp ang
 
-    let calcRotAccelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
+    let private calcRotAccelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
         let mousePos = mouseState.Position
         
         let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
@@ -136,9 +136,8 @@ module Update =
         (newShipPos, newShipSpeed)
 
 
-    let movementTick (prevShipState:ShipState) keyboardState mouseState=
+    let private movementTick (prevShipState:ShipState) keyboardState mouseState=
         let (newShipRot, newShipRotVel) = rotationTick prevShipState keyboardState mouseState
-
         let (newShipPos, newShipSpeed) = linearTick prevShipState keyboardState mouseState
 
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel}
