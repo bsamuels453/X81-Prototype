@@ -58,12 +58,15 @@ module Update =
             if sign <> sign then //this returns false if the float is NaN
                 0.0<_>
             else
-                -sign * decelQty
+                if abs(vel) < decelQty*1.0<s> then
+                    -sign * vel * 1.0</s>
+                else
+                    -sign * decelQty
         else
             accel
 
     let private applyLinFriction vel accel =
-        let decelConst = Consts.linAccel * 2.0
+        let decelConst = Consts.linAccel * 2.0 * (1.0/60.0)
         let frictionedX = applyFriction vel.X accel.X decelConst
         let frictionedY = applyFriction vel.Y accel.Y decelConst
         
