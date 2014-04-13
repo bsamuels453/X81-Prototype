@@ -4,37 +4,47 @@ module Update =
     open System;
     open SFML.Window;
 
-    let private getShipInputLinearAccel rotation keyboardState : Vec2<m/s^2> =
+    let private calcVelCeil (curVel:float<m/s>) maxVel initAccelBoost slowingFactor =
+        let ceilCandid = ((curVel * (slowingFactor - 1.0)) + maxVel)/slowingFactor
+        if ceilCandid < initAccelBoost  then
+            initAccelBoost
+        else
+            ceilCandid
+
+    let private getLinearVelCeil (shipState:ShipState) rotation keyboardState : Vec2<m/s> =
         let wState = (Control.getKeyState keyboardState Keyboard.Key.W).KeyState
         let aState = (Control.getKeyState keyboardState Keyboard.Key.A).KeyState
         let sState = (Control.getKeyState keyboardState Keyboard.Key.S).KeyState
         let dState = (Control.getKeyState keyboardState Keyboard.Key.D).KeyState
 
+        let forwardUnit = Vec2<_>.getFromAngle (rotation) 1.0
+        let sidewaysUnit = Vec2<_>.getFromAngle (rotation-1.55<rad>) 1.0
+        let sidewaysProjection = shipState.Velocity.X*sidewaysUnit.X + shipState.Velocity.Y*sidewaysUnit.Y
+        let forwardProjection = shipState.Velocity.X*forwardUnit.X + shipState.Velocity.Y*forwardUnit.Y
+
         let forwardAccel = 
             match wState with 
-            | KeyState.Pressed -> -Consts.linAccel
-            | _ -> 0.0<m/s^2>
+            | KeyState.Pressed -> - calcVelCeil sidewaysProjection 600.0<m/s> 300.0<m/s> 20.0
+            | _ -> 0.0<m/s>
         let reverseAccel = 
             match sState with 
-            | KeyState.Pressed -> Consts.linAccel
-            | _ -> 0.0<m/s^2>
+            | KeyState.Pressed -> calcVelCeil -sidewaysProjection 600.0<m/s> 300.0<m/s> 20.0
+            | _ -> 0.0<m/s>
         let portAccel = 
             match aState with 
-            | KeyState.Pressed -> -Consts.linAccel
-            | _ -> 0.0<m/s^2>
+            | KeyState.Pressed -> -calcVelCeil -forwardProjection 600.0<m/s> 300.0<m/s> 20.0
+            | _ -> 0.0<m/s>
         let starboardAccel = 
             match dState with 
-            | KeyState.Pressed -> Consts.linAccel
-            | _ -> 0.0<m/s^2>
+            | KeyState.Pressed -> calcVelCeil forwardProjection 600.0<m/s> 300.0<m/s> 20.0
+            | _ -> 0.0<m/s>
 
 
         let sumForward = forwardAccel+reverseAccel
         let sumSideways = starboardAccel + portAccel
-
-        let unit = Vec2<_>.getFromAngle rotation 1.0
-
-        let x = unit.X * sumSideways - sumForward * unit.Y
-        let y = unit.Y * sumSideways + sumForward * unit.X
+        
+        let x = forwardUnit.X * sumSideways - sumForward * forwardUnit.Y
+        let y = forwardUnit.Y * sumSideways + sumForward * forwardUnit.X
 
         {X=x; Y=y}
 
@@ -121,10 +131,16 @@ module Update =
     let movementTick (prevShipState:ShipState) keyboardState mouseState=
         let (newShipRot, newShipRotVel, oldRotVel) = rotationTick prevShipState keyboardState mouseState
 
-        let linShipAccel = applyLinFriction prevShipState.Velocity (getShipInputLinearAccel newShipRot keyboardState)
+        //let linShipAccel = applyLinFriction prevShipState.Velocity (getShipInputLinearAccel newShipRot keyboardState)
 
-        let newShipSpeed = prevShipState.Velocity + linShipAccel * (1.0<s>/60.0)
-        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0) + 0.5 * linShipAccel * (1.0<s>/60.0) * (1.0<s>/60.0)
+        //let newShipSpeed = prevShipState.Velocity + linShipAccel * (1.0<s>/60.0)
+        let newAccel =  (getLinearVelCeil prevShipState prevShipState.Rotation keyboardState)
+        //let newShipSpeed = prevShipState.Velocity + newAccel * (1.0<s>/60.0)
+
+        let newShipSpeed = ((prevShipState.Velocity * (20.0 - 1.0)) + newAccel)/20.0
+
+        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0) + 0.5 * newAccel * (1.0<s>/60.0) * (1.0/60.0)
+
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel}
 
 
