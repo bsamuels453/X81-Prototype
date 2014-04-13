@@ -1,6 +1,7 @@
 ﻿namespace global
 
 module SpriteGen =
+    open System;
     open SFML.Graphics;
     open SFML.Window;
     open System.Diagnostics;

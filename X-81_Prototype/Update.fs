@@ -63,7 +63,7 @@ module Update =
             accel
 
     let private applyLinFriction vel accel =
-        let decelConst = Consts.linAccel
+        let decelConst = Consts.linAccel * 2.0
         let frictionedX = applyFriction vel.X accel.X decelConst
         let frictionedY = applyFriction vel.Y accel.Y decelConst
         
@@ -82,10 +82,10 @@ module Update =
         let mousePos = mouseState.Position
         
         let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
-        let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad>
+        let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad> + Math.PI / 2.0 * 1.0<rad>
 
         Draw.addDebugLine [prevShipState.Position; {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>}]
-        let l = (Vec2<m>.getFromAngle prevShipState.Rotation 50.0<m>) + prevShipState.Position
+        let l = (Vec2<m>.getFromAngle (prevShipState.Rotation - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + prevShipState.Position
         Draw.addDebugLine [l; prevShipState.Position]
 
         let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
