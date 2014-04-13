@@ -58,15 +58,15 @@ module Update =
             if sign <> sign then //this returns false if the float is NaN
                 0.0<_>
             else
-                if abs(vel) < decelQty*1.0<s> then
-                    -sign * vel * 1.0</s>
+                if abs(vel * (1.0/60.0)) < decelQty * 1.0<s> then
+                    -sign * abs(vel) * 1.0</s>
                 else
                     -sign * decelQty
         else
             accel
 
     let private applyLinFriction vel accel =
-        let decelConst = Consts.linAccel * 2.0 * (1.0/60.0)
+        let decelConst = Consts.linAccel * 2.0
         let frictionedX = applyFriction vel.X accel.X decelConst
         let frictionedY = applyFriction vel.Y accel.Y decelConst
         
@@ -124,7 +124,7 @@ module Update =
         let linShipAccel = applyLinFriction prevShipState.Velocity (getShipInputLinearAccel newShipRot keyboardState)
 
         let newShipSpeed = prevShipState.Velocity + linShipAccel * (1.0<s>/60.0)
-        let newShipPos = prevShipState.Position + newShipSpeed * (1.0<s>/60.0)
+        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0) + 0.5 * linShipAccel * (1.0<s>/60.0) * (1.0<s>/60.0)
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel}
 
 
