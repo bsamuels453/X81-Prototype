@@ -86,43 +86,42 @@ module Update =
         let rec clamp ang =
             if ang >= Math.PI * 1.0<rad> then
                 clamp (ang - (Math.PI * 2.0<rad>))
-            elif ang <= Math.PI * -1.0<rad> then
+            elif ang < Math.PI * -1.0<rad> then
                 clamp (ang + (Math.PI * 2.0<rad>))
             else ang
         clamp ang
 
-    let private getWorldMousePos gameState mousePos =
-        ()
-
-    let private calcRotAccelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
+    let private calcRotVelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
         let mousePos = mouseState.WorldPosition
         
         let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
         let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad> + Math.PI / 2.0 * 1.0<rad>
 
-        Draw.addWorldDebugLine [prevShipState.Position; mousePos]
-        let l = (Vec2<m>.getFromAngle (prevShipState.Rotation - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + prevShipState.Position
-        Draw.addWorldDebugLine [l; prevShipState.Position]
-
         let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
         let angleDist = abs(angleDiff)
         let slowingRadius = 0.001<rad>
 
+        let clampAngVel mvel vel =
+            if vel > mvel then
+                mvel
+            elif abs(vel) > mvel then
+                -mvel
+            else vel
+
         let vel = 
             if angleDist < slowingRadius then
-                ()
-                angleDiff * 5.0<rad> * (angleDist / slowingRadius)
+                let desiredVel = (angleDiff * prevShipState.Attribs.AngVelScale * (angleDist / slowingRadius))
+                clampAngVel prevShipState.Attribs.MaxAngVel desiredVel
             else
-                ()
-                angleDiff * 5.0<rad>
-
-        vel * 1.0</(rad*s)>
+                let desiredVel = (angleDiff * prevShipState.Attribs.AngVelScale)
+                clampAngVel prevShipState.Attribs.MaxAngVel desiredVel
+        vel
 
 
     let private rotationTick (prevShipState:ShipState) keyboardState mouseState=
         let rotVel =
             if mouseState.RightPressed then
-                calcRotAccelFromMousepos prevShipState mouseState
+                calcRotVelFromMousepos prevShipState mouseState
             else
                 let rawRotAccel = getShipInputRotAccel keyboardState
                 let accel = applyFriction prevShipState.RotVelocity rawRotAccel Consts.rotAccel
@@ -130,6 +129,7 @@ module Update =
 
         let newShipRot = prevShipState.Rotation + rotVel * (1.0<s>/60.0)
         (newShipRot, rotVel)
+
 
     let private linearTick (prevShipState:ShipState) keyboardState mouseState =
         let newVelCeil =  getLinearVelCeil prevShipState.Velocity prevShipState.Rotation keyboardState prevShipState.Attribs
@@ -142,6 +142,11 @@ module Update =
     let private movementTick (prevShipState:ShipState) keyboardState mouseState=
         let (newShipRot, newShipRotVel) = rotationTick prevShipState keyboardState mouseState
         let (newShipPos, newShipSpeed) = linearTick prevShipState keyboardState mouseState
+
+
+        Draw.addWorldDebugLine [newShipPos; mouseState.WorldPosition]
+        let l = (Vec2<m>.getFromAngle (newShipRot - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + newShipPos
+        Draw.addWorldDebugLine [l;newShipPos]
 
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel}
 

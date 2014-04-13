@@ -62,6 +62,8 @@ module GameTypes =
         MaxVel: float<m/s>
         VelBoost: float<m/s>
         SlowingFactor: float
+        MaxAngVel: float<rad/s>
+        AngVelScale : float</s>
     }
 
     type ShipState = {

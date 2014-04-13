@@ -18,6 +18,8 @@ module Initialize =
             MaxVel = 600.0<m/s>
             VelBoost = 300.0<m/s>
             SlowingFactor = 20.0
+            MaxAngVel = 5.0<rad/s>
+            AngVelScale = 10.0</s>
         }
 
     let genPlayerShip() : ShipState=
