@@ -56,6 +56,12 @@ module GameTypes =
         Position : Vec2<px>
     }
 
+    type ShipAttribs = {
+        Dimensions : Vec2<m>
+        MaxVel: float<m/s>
+        VelBoost: float<m/s>
+        SlowingFactor: float
+    }
 
     type ShipState = {
         Id : ObjectId
@@ -63,7 +69,7 @@ module GameTypes =
         Velocity : Vec2<m/s>
         RotVelocity : float<rad/s>
         Rotation : float<rad>
-        Dimensions : Vec2<m>
+        Attribs: ShipAttribs
     }
 
     type ProjectileState = {

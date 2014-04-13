@@ -14,11 +14,11 @@ module SpriteGen =
 
     let private createShipSprite (updateSprite) (ship:ShipState) (resources:GameResources) =
         let texture = resources.GetTexture "purple"
-        let sprite = new RectangleShape(ship.Dimensions.toVec2f())
+        let sprite = new RectangleShape(ship.Attribs.Dimensions.toVec2f())
         sprite.Texture <- texture
         sprite.Position <- ship.Position.toVec2f()
         sprite.Rotation <- float32 (radToDeg ship.Rotation)
-        sprite.Origin <- (ship.Dimensions/2.0).toVec2f()
+        sprite.Origin <- (ship.Attribs.Dimensions/2.0).toVec2f()
         {Sprite=sprite; Id=ship.Id; ZLayer= 1.0; Update=updateSprite; AutoUpdate=true}
 
     let private genPlayerShipSpriteState ship =
