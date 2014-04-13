@@ -24,7 +24,7 @@ module GameTypes =
             static member (/) (a, f : float) = {X=a.X/f; Y=a.Y/f}
             static member (+) (a, b) = {X=a.X+b.X; Y=a.Y+b.Y}
             static member (-) (a, b) = {X=a.X-b.X; Y=a.Y-b.Y}
-            static member getFromAngle (angle:float<rad>) length =
+            static member getFromAngle (angle:float<rad>) (length:float<'u>) =
                 let xunit = float <| Math.Cos (float angle)
                 let yunit = float <| Math.Sin (float angle)
                 {X=xunit*length; Y=yunit*length}
@@ -37,15 +37,6 @@ module GameTypes =
                 let angle:float<rad> = (float (Math.Atan2(float this.Y, float this.X))) * 1.0<rad>
                 let mag = this.length()
                 (angle, mag)
-(*
-    type Vec3 = {X : float; Y : float; Z : float}
-        with 
-            static member (*) (f : float, a) = {X=a.X*f; Y=a.Y*f; Z=a.Z*f}
-            static member (*) (a, f : float) = {X=a.X*f; Y=a.Y*f; Z=a.Z*f}
-            static member (/) (a, f : float) = {X=a.X/f; Y=a.Y/f; Z=a.Z/f}
-            static member (+) (a, b) = {X=a.X+b.X; Y=a.Y+b.Y; Z=a.Z+b.Z}
-            static member (-) (a, b) = {X=a.X-b.X; Y=a.Y-b.Y; Z=a.Z-b.Z}
-*)
 
     type ObjectId = ObjectId of int
 
