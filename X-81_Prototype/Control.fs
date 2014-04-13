@@ -25,3 +25,11 @@ module Control =
                 | true -> yield {KeyState=Pressed; Key=key}
                 | _ -> yield {KeyState=Released; Key=key}
         }
+
+    let pollMouse win =
+        let leftPressed = Mouse.IsButtonPressed Mouse.Button.Left
+        let rightPressed = Mouse.IsButtonPressed Mouse.Button.Right
+        let middlePressed = Mouse.IsButtonPressed Mouse.Button.Middle
+        let pos = Mouse.GetPosition win
+        let vecPos = {X=float pos.X * 1.0<px>; Y=float pos.Y * 1.0<px>}
+        {LeftPressed=leftPressed; RightPressed=rightPressed; MiddlePressed=middlePressed; Position=vecPos}

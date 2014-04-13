@@ -6,14 +6,17 @@ module GameTypes =
     open SFML.Window
     open SFML.Graphics
     open SFML.Audio;
+    open System.Diagnostics;
 
     [<Measure>] type rad
     [<Measure>] type s
     [<Measure>] type m
     [<Measure>] type deg
+    [<Measure>] type px
 
     let radToDeg (r:float<rad>) = float (r * 57.2957795)
 
+    [<DebuggerDisplay("x = {X} y = {Y}")>]
     type Vec2<[<Measure>] 'u> = {X : float<'u>; Y : float<'u>}
         with 
             static member (*) (f : float<'i>, a) = {X=a.X*f; Y=a.Y*f}
@@ -53,6 +56,13 @@ module GameTypes =
     type KeyStateChange = {
         KeyState : KeyState
         Key : Keyboard.Key
+    }
+
+    type MouseState = {
+        LeftPressed : bool
+        RightPressed : bool
+        MiddlePressed : bool
+        Position : Vec2<px>
     }
 
 

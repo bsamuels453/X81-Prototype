@@ -53,8 +53,9 @@ let main argv =
         stopwatch.Start()
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
+        let mouseState = Control.pollMouse win
 
-        let newShip = Update.playerShipTick gameState.PlayerShip keyboardState
+        let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}
 
         renderState <- Draw.updateRenderState renderState gameState resources
