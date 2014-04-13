@@ -8,6 +8,7 @@ module Draw =
     let mutable private drawablesToUpdate:ObjectId list = []
     let mutable private drawablesToAdd:(GameResources -> SpriteState) list = []
     let mutable private drawablesToRemove:ObjectId list = []
+    let mutable private debugLinesToDraw:Vec2<px> list list = []
 
     let queueSpriteUpdate objectId =
         drawablesToUpdate <- List.Cons (objectId, drawablesToUpdate)
@@ -17,6 +18,9 @@ module Draw =
 
     let queueSpriteDeletion objectId =
         drawablesToRemove <- List.Cons (objectId, drawablesToRemove)
+
+    let addDebugLine vertLi =
+        debugLinesToDraw <- List.Cons (vertLi, debugLinesToDraw)
 
     let private addSprites drawableSprites spritesToAdd textures =
         let generatedSprites = spritesToAdd |> List.map (fun f -> f textures)
@@ -68,12 +72,19 @@ module Draw =
 
         {renderState with Sprites = List.ofArray updatedSprites}
 
+    let drawDebugLines (win:RenderWindow) =
+        let lineList = debugLinesToDraw |> List.map (fun li -> li |> List.map (fun l -> new Vertex(l.toVec2f())) |> Array.ofList) |> Array.ofList
+        lineList |> Array.map (fun li -> win.Draw(li, PrimitiveType.Lines)) |> ignore
+        debugLinesToDraw <- []
+        ()
+
     let draw (win:RenderWindow) renderState =
         win.Clear (new Color(43uy, 43uy, 90uy, 255uy))
         win.SetView renderState.View
 
         renderState.Sprites |> List.map (fun s -> s.Sprite.Draw(win,RenderStates.Default)) |> ignore
-
+        drawDebugLines win
+        
         win.Display()
         ()
 
