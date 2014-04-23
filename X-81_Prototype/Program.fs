@@ -6,6 +6,9 @@ open GameTypes;
 open System.Threading;
 open System.IO;
 open System.Diagnostics;
+open MParticles.MGObjects;
+open MParticles.Renderers.SFML;
+open ParticleSys;
 
 let throttleTo60fps =
     let sw = new Stopwatch()
@@ -45,17 +48,33 @@ let main argv =
     let mutable gameState = Initialize.genDefaultGameState()
     let mutable renderState = Draw.genDefaultRenderState win
 
-    SpriteGen.genDefaultScene gameState
+    let rain = new ParticleSys.SmokeParticleSystem(new Vector2(0.0f, 50.0f), new Vector2(0.0f, -50.0f))
+    
+
+    let gameTime = ref (new GameTime());
+    let runningTime = new Stopwatch();
+    runningTime.Start()
+
+    SpriteGen.genDefaultScene gameState gameTime
     let stopwatch = new Stopwatch()
     let screenToWorld gameState mousePos =
         {
             X=mousePos.X * 1.0<m/px> + gameState.PlayerShip.Position.X - (float Consts.screenWidth) *  0.5<m>
             Y= mousePos.Y * 1.0<m/px> + gameState.PlayerShip.Position.Y - (float Consts.screenHeight) * 0.5<m>
         }
+    
+    let mutable accumulated = new TimeSpan()
 
     while win.IsOpen() do
         throttleTo60fps()
         stopwatch.Start()
+        runningTime.Stop()
+        let elapsed = runningTime.Elapsed
+        runningTime.Restart()
+        accumulated <- accumulated + elapsed
+        (!gameTime).ElapsedGameTime <- elapsed
+        (!gameTime).TotalGameTime <- accumulated
+
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
         let mouseState = Control.pollMouse win (screenToWorld gameState)
@@ -64,8 +83,14 @@ let main argv =
         gameState <- {gameState with PlayerShip=newShip}
 
         renderState <- Draw.updateRenderState renderState gameState resources
-        Draw.draw win renderState
+        rain.Update(!gameTime)
+        if accumulated.TotalSeconds > 10.0 then
+            rain.PauseEmission()
 
+        Draw.draw win renderState gameTime
+        
+        rain.Draw(win, !gameTime)
+        win.Display()
         let idleTime = getIdleTime stopwatch
         executeEveryHundred (fun () -> System.Console.WriteLine("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice"))
         stopwatch.Reset()

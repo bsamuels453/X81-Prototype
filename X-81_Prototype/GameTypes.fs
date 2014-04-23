@@ -7,6 +7,9 @@ module GameTypes =
     open SFML.Graphics
     open SFML.Audio;
     open System.Diagnostics;
+    open MParticles;
+    open MParticles.MGObjects;
+    open MParticles.Renderers.SFML;
 
     [<Measure>] type rad
     [<Measure>] type s
@@ -24,19 +27,52 @@ module GameTypes =
             static member (/) (a, f : float) = {X=a.X/f; Y=a.Y/f}
             static member (+) (a, b) = {X=a.X+b.X; Y=a.Y+b.Y}
             static member (-) (a, b) = {X=a.X-b.X; Y=a.Y-b.Y}
+
             static member getFromAngle (angle:float<rad>) (length:float<'u>) =
                 let xunit = float <| Math.Cos (float angle)
                 let yunit = float <| Math.Sin (float angle)
                 {X=xunit*length; Y=yunit*length}
 
-            member this.toVec2f() = new Vector2f(float32 this.X, float32 this.Y)
+            static member fromPolar polarVec =
+                let xunit = float <| Math.Cos (float polarVec.Angle)
+                let yunit = float <| Math.Sin (float polarVec.Angle)
+                {X=xunit*polarVec.Length; Y=yunit*polarVec.Length}
 
-            member this.length() = Math.Sqrt (float (this.X*this.X+this.Y*this.Y)) * (LanguagePrimitives.FloatWithMeasure 1.0)
+            static member toVec2f vec = new Vector2f(float32 vec.X, float32 vec.Y)
 
-            member this.toAngleLength() =
-                let angle:float<rad> = (float (Math.Atan2(float this.Y, float this.X))) * 1.0<rad>
-                let mag = this.length()
-                (angle, mag)
+            static member toVector2 vec = new Vector2(float32 vec.X, float32 vec.Y)
+
+            static member length vec = Math.Sqrt (float (vec.X*vec.X+vec.Y*vec.Y)) * (LanguagePrimitives.FloatWithMeasure 1.0)
+
+            static member unit (vec:Vec2<'u>) = 
+                let len = Vec2<'u>.length vec
+                {X=vec.X/len; Y=vec.Y/len}
+
+            static member toPolar (vec:Vec2<'u>) =
+                let angle:float<rad> = (float (Math.Atan2(float vec.Y, float vec.X))) * 1.0<rad>
+                let mag = Vec2<'u>.length vec
+                {Length=mag; Angle=angle}
+
+            static member project (src:Vec2<'u>) (dest:Vec2<'u>) =
+                let numerator = src.X*dest.X + src.Y*dest.Y
+                let denominator = Vec2<'u>.length src
+                numerator / denominator
+
+            static member rotate (vec:Vec2<'u>) (ang:float<rad>) =
+                let polar = Vec2.toPolar vec
+                let newPolar = {polar with Angle=polar.Angle + ang}
+                PolVec2.toRect newPolar
+
+    and PolVec2<[<Measure>] 'u> = {Length : float<'u>; Angle : float<rad>}
+        with
+            static member fromRect (vec:Vec2<'u>) =
+                Vec2.toPolar vec
+
+            static member toRect (polarVec:PolVec2<'u>) =
+                Vec2<'u>.fromPolar polarVec
+
+
+
 
     type ObjectId = ObjectId of int
 
@@ -72,6 +108,7 @@ module GameTypes =
         Velocity : Vec2<m/s>
         RotVelocity : float<rad/s>
         Rotation : float<rad>
+        Acceleration : Vec2<m/s^2>
         Attribs: ShipAttribs
     }
 
@@ -89,16 +126,18 @@ module GameTypes =
         Projectiles : ProjectileState list
     }
 
+
     type RenderState = {
-        Sprites : SpriteState list
+        Drawables : DrawableState list
         View : View
     }
-    and SpriteState = {
+    and DrawableState = {
         Id : ObjectId
         ZLayer : float
         AutoUpdate : bool
-        Sprite : Shape
-        Update : (RenderState -> GameState -> SpriteState -> SpriteState)
+        Update : (GameState -> DrawableState -> DrawableState)
+        Draw : (DrawableState -> RenderWindow -> unit)
+        Dispose : (unit -> unit)
     }
 
     type GameResources = {

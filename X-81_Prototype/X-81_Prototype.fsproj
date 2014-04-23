@@ -40,6 +40,12 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MParticles">
+      <HintPath>..\ThirdParty\MParticles.dll</HintPath>
+    </Reference>
+    <Reference Include="MParticles.Renderers.SFML">
+      <HintPath>..\ThirdParty\MParticles.Renderers.SFML.dll</HintPath>
+    </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="FSharp.Core, Version=$(TargetFSharpCoreVersion), Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <Private>True</Private>
@@ -100,6 +106,13 @@
     </Compile>
     <Compile Include="Program.fs" />
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ParticleSys\ParticleSys.csproj">
+      <Name>ParticleSys</Name>
+      <Project>{5ea95b58-3e89-4361-9686-3f0b10639981}</Project>
+      <Private>True</Private>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

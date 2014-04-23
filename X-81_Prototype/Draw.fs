@@ -6,17 +6,17 @@ module Draw =
     open SFML.Audio;
 
     let mutable private drawablesToUpdate:ObjectId list = []
-    let mutable private drawablesToAdd:(GameResources -> SpriteState) list = []
+    let mutable private drawablesToAdd:(GameResources -> DrawableState) list = []
     let mutable private drawablesToRemove:ObjectId list = []
     let mutable private debugLinesToDraw:Vec2<m> list list = []
 
-    let queueSpriteUpdate objectId =
+    let queueDrawableUpdate objectId =
         drawablesToUpdate <- List.Cons (objectId, drawablesToUpdate)
 
-    let queueSpriteAddition spriteInitializer =
+    let queueDrawableAddition spriteInitializer =
         drawablesToAdd <- List.Cons (spriteInitializer, drawablesToAdd)
 
-    let queueSpriteDeletion objectId =
+    let queueDrawableDeletion objectId =
         drawablesToRemove <- List.Cons (objectId, drawablesToRemove)
 
     let addWorldDebugLine vertLi =
@@ -28,20 +28,20 @@ module Draw =
             |> List.append drawableSprites
             |> List.sortBy (fun elem -> elem.ZLayer)
 
-    let private removeSprites drawableSprites idsToRemove =
+    let private removeSprites (drawableSprites:DrawableState list) idsToRemove =
         let spritesToRemove =  drawableSprites |> List.filter (fun elem -> (List.exists (elem.Id.Equals) idsToRemove ))
-        spritesToRemove |> List.map (fun s -> s.Sprite.Dispose()) |> ignore
+        spritesToRemove |> List.map (fun s -> s.Dispose()) |> ignore
          
         drawableSprites |> List.filter (fun elem -> not (List.exists (elem.Id.Equals) idsToRemove ))
 
     let private updateSprites tempRenderState gameState sprites idsToUpdate=
-        let rec applyUpdates sprites updates =
+        let rec applyUpdates (sprites:DrawableState []) updates =
             match updates with
             | [] -> ()
             | h::t ->
                 let idx = sprites |> Array.findIndex (fun s -> s.Id.Equals h)
                 let sprite = sprites.[idx]
-                sprites.[idx] <- sprite.Update tempRenderState gameState sprite
+                sprites.[idx] <- sprite.Update gameState sprite
                 applyUpdates sprites t
                 
         let autoUpdateSprites = 
@@ -51,28 +51,32 @@ module Draw =
 
         let fullIdsToUpdate = List.append idsToUpdate autoUpdateSprites
 
-        let spriteArr = Array.ofList sprites
-        applyUpdates spriteArr fullIdsToUpdate
-        spriteArr
+        let drawableArr = Array.ofList sprites
+        applyUpdates drawableArr fullIdsToUpdate
+        drawableArr
 
-    let updateRenderState renderState gameState textures =
+    let updateDrawablesState renderState gameState textures =
         let drawableSprites = 
             match drawablesToAdd.Length with
-            | 0 -> renderState.Sprites
-            | _ -> addSprites renderState.Sprites drawablesToAdd textures
+            | 0 -> renderState.Drawables
+            | _ -> addSprites renderState.Drawables drawablesToAdd textures
         drawablesToAdd <- []
 
         let filteredSprites = removeSprites drawableSprites drawablesToRemove
         drawablesToRemove <- []
 
-        let tempRenderState = {renderState with Sprites=filteredSprites}
+        let tempRenderState = {renderState with Drawables=filteredSprites}
 
         let updatedSprites = updateSprites tempRenderState gameState filteredSprites drawablesToUpdate
         drawablesToUpdate <- []
+        updatedSprites
 
-        renderState.View.Center <- gameState.PlayerShip.Position.toVec2f()
+    let updateRenderState renderState gameState textures =
+        let updatedDrawables = updateDrawablesState renderState gameState textures
 
-        {renderState with Sprites = List.ofArray updatedSprites}
+        renderState.View.Center <- Vec2<m>.toVec2f gameState.PlayerShip.Position
+
+        {renderState with Drawables = List.ofArray updatedDrawables}
 
     let drawDebugLines (win:RenderWindow) =
         let view = win.GetView()
@@ -83,7 +87,7 @@ module Draw =
             debugLinesToDraw 
             |> List.map (fun li -> 
                 li 
-                |> List.map (fun l -> new Vertex(l.toVec2f())) 
+                |> List.map (fun l -> new Vertex(Vec2<m>.toVec2f l)) 
                 |> Array.ofList) 
             |> Array.ofList
 
@@ -91,17 +95,15 @@ module Draw =
         debugLinesToDraw <- []
         ()
 
-    let draw (win:RenderWindow) renderState =
+    let draw (win:RenderWindow) renderState gameTime =
         win.Clear (new Color(43uy, 43uy, 90uy, 255uy))
         win.SetView renderState.View
 
-        renderState.Sprites |> List.map (fun s -> s.Sprite.Draw(win,RenderStates.Default)) |> ignore
+        renderState.Drawables |> List.map (fun s -> s.Draw s win) |> ignore
         drawDebugLines win
-        
-        win.Display()
         ()
 
     let genDefaultRenderState (win:RenderWindow)=
-        {Sprites=[]; View=win.GetView()}
+        {Drawables=[]; View=win.GetView()}
 
     ()

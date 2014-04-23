@@ -5,6 +5,7 @@ open GameTypes;
 module Initialize =
     open SFML.Window;
     open SFML.Graphics;
+    open MParticles.MGObjects;
 
     let initWindow() =
         let win = new RenderWindow(new VideoMode(uint32 Consts.screenWidth,uint32 Consts.screenHeight), "X-81 Prototype")
@@ -30,6 +31,7 @@ module Initialize =
             Rotation = 0.0<rad>
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
+            Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
         }
 
     let genEnemyShip() : ShipState=
@@ -40,6 +42,7 @@ module Initialize =
             Rotation = 0.0<rad>
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
+            Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
         }
 
     let genDefaultGameState() =
