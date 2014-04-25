@@ -127,8 +127,8 @@ namespace ParticleSys
 
 
         protected override void SetupInitialParticleProperties() {
-            ParticleProperties.LifetimeMin = 1.00f;
-            ParticleProperties.LifetimeMax = 1.25f;
+            ParticleProperties.LifetimeMin = 0.20f;
+            ParticleProperties.LifetimeMax = 0.65f;
 
             ParticleProperties.InitialAlphaMin = 0.00f;
             ParticleProperties.InitialAlphaMax = 0.00f;
