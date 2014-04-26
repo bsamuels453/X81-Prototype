@@ -47,7 +47,7 @@ let main argv =
 
     let mutable gameState = Initialize.genDefaultGameState (win.GetView())
     let mutable renderState = Draw.genDefaultRenderState win
-    
+    let mutable mouseState = Control.initMouseControl win
 
     let gameTime = ref (new GameTime());
     let runningTime = new Stopwatch();
@@ -72,7 +72,7 @@ let main argv =
 
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
-        let mouseState = Control.pollMouse win (ViewFuncs.screenToWorld gameState.GameView)
+        mouseState <- Control.pollMouse mouseState win (ViewFuncs.screenToWorld gameState.GameView)
 
         let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}

@@ -14,6 +14,10 @@ module ControlTypes =
     }
 
     type MouseState = {
+        PrevLeftPressed : bool
+        PrevRightPressed : bool
+        PrevMiddlePressed : bool
+        ScrollWheelDelta : int
         LeftPressed : bool
         RightPressed : bool
         MiddlePressed : bool
