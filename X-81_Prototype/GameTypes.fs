@@ -84,8 +84,25 @@ module GameTypes =
             static member offsetVec (rect:Rectangle<'u>) (offset:Vec2<'u>) =
                 {rect with Origin={X=rect.Origin.X + offset.X; Y=rect.Origin.Y + offset.Y}}
 
-            static member offset (rect:Rectangle<'u>)  (x:float<'u>) (y:float<'u>) =
+            static member offset (rect:Rectangle<'u>) (x:float<'u>) (y:float<'u>) =
                 {rect with Origin={X=rect.Origin.X + x; Y=rect.Origin.Y + y}}
+
+            static member inflate (rect:Rectangle<'u>) (horiz:float<'u>) (verti:float<'u>) =
+                {rect with 
+                    Origin = {X=rect.Origin.X - horiz; Y=rect.Origin.Y - verti};
+                    Width = rect.Width + horiz * 2.0
+                    Height = rect.Height + verti * 2.0
+                }
+
+            static member deflate (rect:Rectangle<'u>) (horiz:float<'u>) (verti:float<'u>) =
+                {rect with 
+                    Origin = {X=rect.Origin.X + horiz; Y=rect.Origin.Y + verti};
+                    Width = rect.Width - horiz * 2.0
+                    Height = rect.Height - verti * 2.0
+                }
+
+            static member center (rect:Rectangle<'u>) =
+                {X=rect.Origin.X + rect.Width/2.0; Y=rect.Origin.Y + rect.Height/2.0}
 
 
     type ObjectId = ObjectId of int
@@ -116,6 +133,10 @@ module GameTypes =
         AngVelScale : float</s>
     }
 
+    type Affiliation =
+    |Red
+    |Blue
+
     type ShipState = {
         Id : ObjectId
         Position : Vec2<m>
@@ -123,23 +144,17 @@ module GameTypes =
         RotVelocity : float<rad/s>
         Rotation : float<rad>
         Acceleration : Vec2<m/s^2>
+        Destination : Vec2<m>
+        Affiliation : Affiliation
+        PlayerControlled : bool
         Attribs: ShipAttribs
-    }
-
-    type ProjectileState = {
-        Id : ObjectId
-        Position : Vec2<m>
-        Velocity : Vec2<m/s>
-        Rotation : float<rad>
-        Dimensions : Vec2<m>
     }
 
     type GameState = {
         PlayerShip : ShipState
         EnemyShip : ShipState
-        Projectiles : ProjectileState list
+        ViewBounds : Rectangle<m>
     }
-
 
     type RenderState = {
         Drawables : DrawableState list
