@@ -45,10 +45,8 @@ let main argv =
     let win = Initialize.initWindow()
     let resources = Resource.loadResources()
 
-    let mutable gameState = Initialize.genDefaultGameState()
+    let mutable gameState = Initialize.genDefaultGameState (win.GetView())
     let mutable renderState = Draw.genDefaultRenderState win
-
-    let rain = new ParticleSys.SmokeParticleSystem(new Vector2(0.0f, 50.0f), new Vector2(0.0f, -50.0f))
     
 
     let gameTime = ref (new GameTime());
@@ -57,11 +55,16 @@ let main argv =
 
     SpriteGen.genDefaultScene gameState gameTime
     let stopwatch = new Stopwatch()
-    let screenToWorld gameState mousePos =
+    let screenToWorld viewbounds mousePos : Vec2<m>=
+        let center = Rectangle.center viewbounds
+        let mx =  (float viewbounds.Width *1.0<m>) / (float Consts.screenWidth * 1.0<px>)
+        let my = (float viewbounds.Height *1.0<m>) / (float Consts.screenHeight * 1.0<px>)
+
         {
-            X=mousePos.X * 1.0<m/px> + gameState.PlayerShip.Position.X - (float Consts.screenWidth) *  0.5<m>
-            Y= mousePos.Y * 1.0<m/px> + gameState.PlayerShip.Position.Y - (float Consts.screenHeight) * 0.5<m>
+            X=(mousePos.X * mx + viewbounds.Origin.X)
+            Y=(mousePos.Y * mx + viewbounds.Origin.Y)
         }
+        
     
     let mutable accumulated = new TimeSpan()
 
@@ -77,19 +80,16 @@ let main argv =
 
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
-        let mouseState = Control.pollMouse win (screenToWorld gameState)
+        let mouseState = Control.pollMouse win (screenToWorld gameState.ViewBounds)
 
         let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}
 
         renderState <- Draw.updateRenderState renderState gameState resources
-        rain.Update(!gameTime)
-        if accumulated.TotalSeconds > 10.0 then
-            rain.PauseEmission()
 
         Draw.draw win renderState gameTime
         
-        rain.Draw(win, !gameTime)
+
         win.Display()
         let idleTime = getIdleTime stopwatch
         executeEveryHundred (fun () -> System.Console.WriteLine("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice"))
