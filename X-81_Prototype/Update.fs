@@ -161,3 +161,9 @@ module Update =
     let selectionTick gameState mouseState =
         
         ()
+
+    let zoomTick gameState mouseState =
+        if mouseState.ScrollWheelDelta <> 0 then
+            modifyViewScale gameState.GameView ((float mouseState.ScrollWheelDelta) * -0.2<m/px>)
+        else
+            gameState.GameView

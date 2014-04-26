@@ -5,8 +5,8 @@ module ViewFuncs =
     let screenToWorld gameView mousePos : Vec2<m>=
         //let mx =  (float viewbounds.Width *1.0<m>) / (float Consts.screenWidth * 1.0<px>)
         //let my = (float viewbounds.Height *1.0<m>) / (float Consts.screenHeight * 1.0<px>)
-        let mx = gameView.HScale
-        let my = gameView.VScale
+        let mx = gameView.ViewScale
+        let my = gameView.ViewScale
 
         {
             X=(mousePos.X * mx + gameView.BoundingBox.Origin.X)
@@ -16,5 +16,22 @@ module ViewFuncs =
     let createDefaultView() =
         let bounds = {Origin={X= -1100.0<m>; Y= -900.0<m>;}; Width=2200.0<m>; Height=1800.0<m>}
         let vscale = (float bounds.Width *1.0<m>) / (float Consts.screenWidth * 1.0<px>)
-        let hscale = (float bounds.Height *1.0<m>) / (float Consts.screenHeight * 1.0<px>)
-        {BoundingBox=bounds; VScale=vscale; HScale=hscale}
+        {BoundingBox=bounds; ViewScale=vscale;}
+
+    let modifyViewScale view scaleQty =
+        let test = scaleQty+view.ViewScale
+        let clampedScale =
+            match (test) with
+            | (s) when s < Consts.zoomInLimit -> 0.0<m/px>
+            | (s) when s > Consts.zoomOutLimit -> 0.0<m/px>
+            | (s) -> scaleQty
+
+        let newViewScale = view.ViewScale + clampedScale
+        let newBoundsWidth =  (float Consts.screenWidth) * 1.0<px> * newViewScale
+        let newBoundsHeight = (float Consts.screenHeight) * 1.0<px> * newViewScale
+        let center = Rectangle.center view.BoundingBox
+        let newOrigin = {X=center.X-newBoundsWidth/2.0; Y=center.Y-newBoundsHeight/2.0}
+        {
+            BoundingBox = {Origin=newOrigin; Width=newBoundsWidth; Height=newBoundsHeight}
+            ViewScale=newViewScale
+        }

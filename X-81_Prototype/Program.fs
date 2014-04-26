@@ -74,6 +74,9 @@ let main argv =
         let keyboardState = Control.pollKeyboard()
         mouseState <- Control.pollMouse mouseState win (ViewFuncs.screenToWorld gameState.GameView)
 
+        let newGameView = Update.zoomTick gameState mouseState
+        gameState <- {gameState with GameView = newGameView}
+
         let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}
 

@@ -6,4 +6,8 @@ module Consts =
 
     let rotAccel = 3.0<rad/s^2>
     let linAccel = 100.0<m/s^2>
+
+    let zoomInLimit = 0.2<m/px>
+    let zoomOutLimit = 3.0<m/px>
+
     ()
