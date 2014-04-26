@@ -137,23 +137,27 @@ module Update =
         let newShipSpeed = ((prevShipState.Velocity * (20.0 - 1.0)) + newVelCeil)/20.0
         let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0)
         let shipAccel = (newShipSpeed - prevShipState.Velocity) * (1.0/60.0<s>)
-        (newShipPos, newShipSpeed, shipAccel)
+        let newAABBpos = prevShipState.Attribs.AABBShape + newShipPos
+        (newShipPos, newShipSpeed, shipAccel, newAABBpos)
 
 
     let private movementTick (prevShipState:ShipState) keyboardState mouseState=
         let (newShipRot, newShipRotVel) = rotationTick prevShipState keyboardState mouseState
-        let (newShipPos, newShipSpeed, newAccel) = linearTick prevShipState keyboardState mouseState
+        let (newShipPos, newShipSpeed, newAccel, newAABB) = linearTick prevShipState keyboardState mouseState
 
 
         Draw.addWorldDebugLine [newShipPos; mouseState.WorldPosition]
         let l = (Vec2<m>.getFromAngle (newShipRot - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + newShipPos
         Draw.addWorldDebugLine [l;newShipPos]
 
-        {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel}
+        {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel; AABB=newAABB}
 
 
     let playerShipTick (prevShipState:ShipState) keyboardState mouseState=
         let postMovementTick = movementTick prevShipState keyboardState mouseState
 
         postMovementTick
-    ()
+
+    let selectionTick gameState mouseState =
+        
+        ()

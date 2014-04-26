@@ -75,6 +75,9 @@ module GameTypes =
     [<DebuggerDisplay("Origin = {Origin} Width = {Width} Height = {Height}")>]
     type Rectangle<[<Measure>] 'u> = {Origin:Vec2<'u>; Width:float<'u>; Height:float<'u>}
         with
+            static member (+) (rect, vec) = {rect with Origin=rect.Origin + vec}
+            static member (+) (vec, rect) = {rect with Origin=rect.Origin + vec}
+
             static member containsVec (rect:Rectangle<'u>) (vec2:Vec2<'u>) =
                 ((((rect.Origin.X <= vec2.X) && (vec2.X < (rect.Origin.X + rect.Width))) && (rect.Origin.Y <= vec2.Y)) && (vec2.Y < (rect.Origin.Y + rect.Height)));
 
@@ -131,6 +134,7 @@ module GameTypes =
         SlowingFactor: float
         MaxAngVel: float<rad/s>
         AngVelScale : float</s>
+        AABBShape : Rectangle<m>
     }
 
     type Affiliation =
@@ -145,6 +149,7 @@ module GameTypes =
         Rotation : float<rad>
         Acceleration : Vec2<m/s^2>
         Destination : Vec2<m>
+        AABB : Rectangle<m>
         Affiliation : Affiliation
         PlayerControlled : bool
         Attribs: ShipAttribs

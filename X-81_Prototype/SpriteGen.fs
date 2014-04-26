@@ -69,6 +69,34 @@ module SpriteGen =
         Draw.queueDrawableAddition createParticleSys
         ()
 
+
+    let private showAABBs gameState =
+        let extract (gamestate:GameState) = gamestate.PlayerShip.AABB
+
+        let upd (sprite:Shape) gameState (spriteState:DrawableState)  =
+            let aabb = extract gameState
+            sprite.Position <- Vec2<m>.toVec2f aabb.Origin
+            spriteState
+
+
+        let createGhost (upda) (resources:GameResources)=
+            let v = Vec2<_>.toVec2f {X=gameState.PlayerShip.AABB.Width; Y=gameState.PlayerShip.AABB.Height}
+            let sprite = new RectangleShape(v)
+            sprite.Position <- new Vector2f(0.0f, 0.0f)
+            sprite.Rotation <- 0.0f
+            sprite.Origin <- new Vector2f(0.0f, 0.0f)
+            sprite.OutlineThickness <- 3.0f
+            sprite.FillColor <- new Color(0uy, 0uy, 0uy, 0uy)
+
+            let draw state win =
+                sprite.Draw(win, RenderStates.Default)
+            let dispose() = sprite.Dispose()
+
+            {Id=GameFuncs.generateObjectId(); ZLayer= 1.0; Update=(upda sprite); AutoUpdate=true; Draw = draw; Dispose = dispose}
+
+        Draw.queueDrawableAddition (createGhost (upd))
+
+
     let genDefaultScene gameState gameTimeRef=
         genPlayerShipSpriteState gameState.PlayerShip
         genEnemyShipSpriteState gameState.EnemyShip
@@ -76,5 +104,7 @@ module SpriteGen =
         genDefaultEnginePSystems {X=0.0<m/s^2>; Y= 1.0<m/s^2>} gameTimeRef
         genDefaultEnginePSystems {X=1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
+        showAABBs gameState
+
         ()
     ()
