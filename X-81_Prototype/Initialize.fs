@@ -61,7 +61,7 @@ module Initialize =
         {
             PlayerShip = genPlayerShip()
             EnemyShip = genEnemyShip()
-            ViewBounds = {Origin={X= -1100.0<m>; Y= -900.0<m>;}; Width=2200.0<m>; Height=1800.0<m>}
+            GameView = ViewFuncs.createDefaultView()
         }
         
     ()

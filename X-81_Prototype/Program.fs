@@ -55,15 +55,7 @@ let main argv =
 
     SpriteGen.genDefaultScene gameState gameTime
     let stopwatch = new Stopwatch()
-    let screenToWorld viewbounds mousePos : Vec2<m>=
-        let center = Rectangle.center viewbounds
-        let mx =  (float viewbounds.Width *1.0<m>) / (float Consts.screenWidth * 1.0<px>)
-        let my = (float viewbounds.Height *1.0<m>) / (float Consts.screenHeight * 1.0<px>)
 
-        {
-            X=(mousePos.X * mx + viewbounds.Origin.X)
-            Y=(mousePos.Y * mx + viewbounds.Origin.Y)
-        }
         
     
     let mutable accumulated = new TimeSpan()
@@ -80,7 +72,7 @@ let main argv =
 
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
-        let mouseState = Control.pollMouse win (screenToWorld gameState.ViewBounds)
+        let mouseState = Control.pollMouse win (ViewFuncs.screenToWorld gameState.GameView)
 
         let newShip = Update.playerShipTick gameState.PlayerShip keyboardState mouseState
         gameState <- {gameState with PlayerShip=newShip}

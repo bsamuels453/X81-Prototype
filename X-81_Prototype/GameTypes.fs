@@ -41,13 +41,8 @@ module GameTypes =
         Attribs: ShipAttribs
     }
 
-    type GameView = {
-        Bounds : Rectangle<m>
-        Scale : float
-    }
-
     type GameState = {
         PlayerShip : ShipState
         EnemyShip : ShipState
-        ViewBounds : Rectangle<m>
+        GameView : GameView
     }

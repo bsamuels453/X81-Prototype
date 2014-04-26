@@ -72,6 +72,18 @@
       <SubType>
       </SubType>
     </Compile>
+    <Compile Include="GameConsts.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="ViewTypes.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="ViewFuncs.fs">
+      <SubType>
+      </SubType>
+    </Compile>
     <Compile Include="GameTypes.fs">
       <SubType>
       </SubType>
@@ -89,10 +101,6 @@
       </SubType>
     </Compile>
     <Compile Include="GameFuncs.fs">
-      <SubType>
-      </SubType>
-    </Compile>
-    <Compile Include="GameConsts.fs">
       <SubType>
       </SubType>
     </Compile>
