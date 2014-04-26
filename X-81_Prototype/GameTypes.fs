@@ -107,6 +107,9 @@ module GameTypes =
             static member center (rect:Rectangle<'u>) =
                 {X=rect.Origin.X + rect.Width/2.0; Y=rect.Origin.Y + rect.Height/2.0}
 
+            static member extractDims (rect:Rectangle<'u>) =
+                {X=rect.Width; Y=rect.Height}
+
 
     type ObjectId = ObjectId of int
 

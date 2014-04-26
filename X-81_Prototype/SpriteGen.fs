@@ -80,7 +80,7 @@ module SpriteGen =
 
 
         let createGhost (upda) (resources:GameResources)=
-            let v = Vec2<_>.toVec2f {X=gameState.PlayerShip.AABB.Width; Y=gameState.PlayerShip.AABB.Height}
+            let v = Vec2<_>.toVec2f (Rectangle.extractDims gameState.PlayerShip.AABB)
             let sprite = new RectangleShape(v)
             sprite.Position <- new Vector2f(0.0f, 0.0f)
             sprite.Rotation <- 0.0f
