@@ -75,7 +75,7 @@ module Update =
         else
             accel
 
-    let private applyLinFriction vel accel =
+    let private applyLinFriction vel accel : Vec2<m/s^2>=
         let decelConst = Consts.linAccel * 2.0
         let frictionedX = applyFriction vel.X accel.X decelConst
         let frictionedY = applyFriction vel.Y accel.Y decelConst
@@ -94,7 +94,7 @@ module Update =
     let private calcRotVelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
         let mousePos = mouseState.WorldPosition
         
-        let posDiff = {X= float mousePos.X * 1.0<m>; Y= float mousePos.Y * 1.0<m>} - prevShipState.Position
+        let posDiff = mousePos - prevShipState.Position
         let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad> + Math.PI / 2.0 * 1.0<rad>
 
         let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
