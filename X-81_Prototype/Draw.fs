@@ -74,7 +74,8 @@ module Draw =
     let updateRenderState renderState gameState textures =
         let updatedDrawables = updateDrawablesState renderState gameState textures
 
-        renderState.View.Center <- Vec2<m>.toVec2f gameState.PlayerShip.Position
+        renderState.View.Center <- Vec2<m>.toVec2f (Rectangle.center gameState.ViewBounds)
+        renderState.View.Size <- Vec2<m>.toVec2f {X=gameState.ViewBounds.Width; Y=gameState.ViewBounds.Height}
 
         {renderState with Drawables = List.ofArray updatedDrawables}
 
