@@ -72,6 +72,19 @@ module GameTypes =
                 Vec2<'u>.fromPolar polarVec
 
 
+    type Rectangle<[<Measure>] 'u> = {X:float<'u>; Y:float<'u>; Width:float<'u>; Height:float<'u>}
+        with
+            static member containsVec (rect:Rectangle<'u>) (vec2:Vec2<'u>) =
+                ((((rect.X <= vec2.X) && (vec2.X < (rect.X + rect.Width))) && (rect.Y <= vec2.Y)) && (vec2.Y < (rect.Y + rect.Height)));
+
+            static member contains (rect:Rectangle<'u>) (x:float<'u>) (y:float<'u>) =
+                ((((rect.X <= x) && (x < (rect.X + rect.Width))) && (rect.Y <= y)) && (y < (rect.Y + rect.Height)));
+
+            static member offsetVec (rect:Rectangle<'u>) (offset:Vec2<'u>) =
+                {rect with X=rect.X + offset.X; Y=rect.Y + offset.Y}
+
+            static member offset (rect:Rectangle<'u>)  (x:float<'u>) (y:float<'u>) =
+                {rect with X=rect.X + x; Y=rect.Y + y}
 
 
     type ObjectId = ObjectId of int
