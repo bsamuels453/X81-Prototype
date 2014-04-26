@@ -64,7 +64,23 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicTypes.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="Monads.fs">
+      <SubType>
+      </SubType>
+    </Compile>
     <Compile Include="GameTypes.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="DrawTypes.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="ControlTypes.fs">
       <SubType>
       </SubType>
     </Compile>

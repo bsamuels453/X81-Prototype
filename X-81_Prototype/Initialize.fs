@@ -57,6 +57,7 @@ module Initialize =
         }
 
     let genDefaultGameState view =
+        
         {
             PlayerShip = genPlayerShip()
             EnemyShip = genEnemyShip()
