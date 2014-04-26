@@ -62,8 +62,9 @@ module GameTypes =
                 let polar = Vec2.toPolar vec
                 let newPolar = {polar with Angle=polar.Angle + ang}
                 PolVec2.toRect newPolar
-
-    and PolVec2<[<Measure>] 'u> = {Length : float<'u>; Angle : float<rad>}
+    
+    and [<DebuggerDisplay("Len = {Length} Ang = {Angle}")>] 
+        PolVec2<[<Measure>] 'u> = {Length : float<'u>; Angle : float<rad>}
         with
             static member fromRect (vec:Vec2<'u>) =
                 Vec2.toPolar vec
@@ -71,20 +72,20 @@ module GameTypes =
             static member toRect (polarVec:PolVec2<'u>) =
                 Vec2<'u>.fromPolar polarVec
 
-
-    type Rectangle<[<Measure>] 'u> = {X:float<'u>; Y:float<'u>; Width:float<'u>; Height:float<'u>}
+    [<DebuggerDisplay("Origin = {Origin} Width = {Width} Height = {Height}")>]
+    type Rectangle<[<Measure>] 'u> = {Origin:Vec2<'u>; Width:float<'u>; Height:float<'u>}
         with
             static member containsVec (rect:Rectangle<'u>) (vec2:Vec2<'u>) =
-                ((((rect.X <= vec2.X) && (vec2.X < (rect.X + rect.Width))) && (rect.Y <= vec2.Y)) && (vec2.Y < (rect.Y + rect.Height)));
+                ((((rect.Origin.X <= vec2.X) && (vec2.X < (rect.Origin.X + rect.Width))) && (rect.Origin.Y <= vec2.Y)) && (vec2.Y < (rect.Origin.Y + rect.Height)));
 
             static member contains (rect:Rectangle<'u>) (x:float<'u>) (y:float<'u>) =
-                ((((rect.X <= x) && (x < (rect.X + rect.Width))) && (rect.Y <= y)) && (y < (rect.Y + rect.Height)));
+                ((((rect.Origin.X <= x) && (x < (rect.Origin.X + rect.Width))) && (rect.Origin.Y <= y)) && (y < (rect.Origin.Y + rect.Height)));
 
             static member offsetVec (rect:Rectangle<'u>) (offset:Vec2<'u>) =
-                {rect with X=rect.X + offset.X; Y=rect.Y + offset.Y}
+                {rect with Origin={X=rect.Origin.X + offset.X; Y=rect.Origin.Y + offset.Y}}
 
             static member offset (rect:Rectangle<'u>)  (x:float<'u>) (y:float<'u>) =
-                {rect with X=rect.X + x; Y=rect.Y + y}
+                {rect with Origin={X=rect.Origin.X + x; Y=rect.Origin.Y + y}}
 
 
     type ObjectId = ObjectId of int
