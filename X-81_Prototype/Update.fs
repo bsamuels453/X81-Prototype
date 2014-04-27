@@ -166,7 +166,7 @@ module Update =
         if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
             None
         else
-            None
+            gameState.SelectedObj
 
     let zoomTick gameState mouseState =
         if mouseState.ScrollWheelDelta <> 0 then

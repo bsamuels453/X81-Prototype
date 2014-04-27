@@ -12,8 +12,8 @@ module SpriteGen =
     let private extractShip gameState id =
         gameState.Ships |> List.find (fun s -> s.Id = id)
 
-    let private updateShipSprite (sprite:Shape) gameState (spriteState:DrawableState)  =
-        let ship:ShipState = extractShip gameState spriteState.TrackingId
+    let private updateShipSprite trackedId (sprite:Shape) gameState (spriteState:DrawableState)  =
+        let ship:ShipState = extractShip gameState trackedId
         sprite.Position <- Vec2<m>.toVec2f ship.Position
         sprite.Rotation <- float32 (radToDeg ship.Rotation)
         spriteState
@@ -31,7 +31,6 @@ module SpriteGen =
             sprite.Dispose()
         {
             Id=GameFuncs.generateObjectId(); 
-            TrackingId=ship.Id; 
             ZLayer= 1.0; 
             Update=(updateSprite sprite); 
             AutoUpdate=true; 
@@ -39,11 +38,11 @@ module SpriteGen =
             Dispose = dispose
         }
 
-    let private genPlayerShipSpriteState ship =
-        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite)) ship)
+    let private genPlayerShipSpriteState (ship:ShipState) =
+        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite ship.Id)) ship)
 
-    let private genEnemyShipSpriteState ship =
-        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite)) ship)
+    let private genEnemyShipSpriteState (ship:ShipState) =
+        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite ship.Id)) ship)
 
     let private updateParticleSys extractShip forwardVec gameTimeRef (particleSys:SmokeParticleSystem) gameState spriteState =
         let ship:ShipState = extractShip gameState
@@ -69,7 +68,6 @@ module SpriteGen =
             ()
         {
             Id=GameFuncs.generateObjectId();
-            TrackingId=GameFuncs.generateObjectId();
             ZLayer= 1.0;
             Update=updateSys;
             AutoUpdate=true;
@@ -85,8 +83,8 @@ module SpriteGen =
         Draw.queueDrawableAddition createParticleSys
         ()
 
-    let private updateAABB (sprite:Shape) gameState (spriteState:DrawableState)  =
-        let aabb = (extractShip gameState spriteState.TrackingId).AABB
+    let private updateAABB targetId (sprite:Shape) gameState (spriteState:DrawableState)  =
+        let aabb = (extractShip gameState targetId).AABB
         sprite.Position <- Vec2<m>.toVec2f aabb.Origin
         spriteState
 
@@ -106,7 +104,6 @@ module SpriteGen =
 
             {
                 Id=GameFuncs.generateObjectId();
-                TrackingId=ship.Id;
                 ZLayer= 1.0;
                 Update=(upda sprite);
                 AutoUpdate=true;
@@ -114,7 +111,7 @@ module SpriteGen =
                 Dispose = dispose
             }
 
-        Draw.queueDrawableAddition (createGhost (updateAABB))
+        Draw.queueDrawableAddition (createGhost (updateAABB ship.Id))
         ()
 
     let private showAABBs gameState =
