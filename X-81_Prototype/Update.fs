@@ -164,7 +164,16 @@ module Update =
 
     let selectionTick gameState mouseState : ObjectId option =
         if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
-            None
+            let getClickedShip ship =
+                Monads.condition {
+                    do! Rectangle.containsVec ship.AABB mouseState.WorldPosition
+                    do! ship.PlayerControlled
+                    return true
+                }
+            let clickedShip = gameState.Ships |> List.tryFind getClickedShip
+            match clickedShip with
+                | None -> None
+                | Some(ship) -> Some(ship.Id)
         else
             gameState.SelectedObj
 
