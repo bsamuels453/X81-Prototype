@@ -23,7 +23,8 @@ module Draw =
         debugLinesToDraw <- List.Cons (vertLi, debugLinesToDraw)
 
     let private addSprites drawableSprites spritesToAdd textures =
-        let generatedSprites = spritesToAdd |> List.map (fun f -> f textures)
+        let generatedSprites = spritesToAdd |> List.map (fun consSprite -> consSprite textures)
+
         generatedSprites
             |> List.append drawableSprites
             |> List.sortBy (fun elem -> elem.ZLayer)
