@@ -58,6 +58,11 @@ module BasicTypes =
                 let polar = Vec2.toPolar vec
                 let newPolar = {polar with Angle=polar.Angle + ang}
                 PolVec2.toRect newPolar
+
+            static member distance (vec1:Vec2<'u>) (vec2:Vec2<'u>) =
+                let x = vec1.X - vec2.X
+                let y = vec1.Y - vec2.Y
+                sqrt(x*x+y*y)
     
     and [<DebuggerDisplay("Len = {Length} Ang = {Angle}")>] 
         PolVec2<[<Measure>] 'u> = {Length : float<'u>; Angle : float<rad>}
