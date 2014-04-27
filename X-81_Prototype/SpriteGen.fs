@@ -89,7 +89,7 @@ module SpriteGen =
         spriteState
 
     let private showShipAABB ship =
-        let createGhost (upda) (resources:GameResources)=
+        let createGhost (resources:GameResources)=
             let v = Vec2<_>.toVec2f (Rectangle.extractDims ship.AABB)
             let sprite = new RectangleShape(v)
             sprite.Position <- new Vector2f(0.0f, 0.0f)
@@ -105,17 +105,57 @@ module SpriteGen =
             {
                 Id=GameFuncs.generateObjectId();
                 ZLayer= 1.0;
-                Update=(upda sprite);
+                Update=(updateAABB ship.Id sprite);
                 AutoUpdate=true;
                 Draw = draw;
                 Dispose = dispose
             }
 
-        Draw.queueDrawableAddition (createGhost (updateAABB ship.Id))
+        Draw.queueDrawableAddition (createGhost)
         ()
 
     let private showAABBs gameState =
         gameState.Ships |> List.map showShipAABB |> ignore
+
+    let genTargetGhost() =
+        let doDraw = ref false
+
+        let updateGhost (sprite:RectangleShape) gameState drawableState =
+            match gameState.SelectedObj with
+            |None -> 
+                doDraw := false
+            |Some(shipId) ->
+                doDraw := true
+                let ship = extractShip gameState shipId
+                sprite.Position <- Vec2<_>.toVec2f (Rectangle.center ship.AABB)
+            drawableState
+
+        let createGhost (resources:GameResources) =
+            let sprite = new RectangleShape(new Vector2f(50.0f, 50.0f))
+            sprite.Position <- new Vector2f(0.0f, 0.0f)
+            sprite.Rotation <- 0.0f
+            sprite.Origin <- new Vector2f(25.0f, 25.0f)
+            sprite.OutlineThickness <- 3.0f
+            sprite.FillColor <- new Color(0uy, 0uy, 0uy, 0uy)
+            sprite.OutlineColor <- new Color(0uy, 255uy, 0uy, 255uy)
+
+            let draw state win =
+                if !doDraw then
+                    sprite.Draw(win, RenderStates.Default)
+                else ()
+
+            let dispose() = sprite.Dispose()
+
+            {
+                Id=GameFuncs.generateObjectId();
+                ZLayer= 1.0;
+                Update=(updateGhost sprite);
+                AutoUpdate=true;
+                Draw = draw;
+                Dispose = dispose
+            }
+        Draw.queueDrawableAddition (createGhost)
+        ()
 
     let genDefaultScene gameState gameTimeRef=
         genPlayerShipSpriteState gameState.Ships.[0]
@@ -125,6 +165,6 @@ module SpriteGen =
         //genDefaultEnginePSystems {X=1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         //genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         showAABBs gameState
-
+        genTargetGhost()
         ()
     ()
