@@ -19,14 +19,12 @@ module ViewFuncs =
         {BoundingBox=bounds; ViewScale=vscale;}
 
     let modifyViewScale view scaleQty =
-        let test = scaleQty+view.ViewScale
-        let clampedScale =
-            match (test) with
-            | (s) when s < Consts.zoomInLimit -> 0.0<m/px>
-            | (s) when s > Consts.zoomOutLimit -> 0.0<m/px>
-            | (s) -> scaleQty
+        let newViewScale =
+            match (scaleQty+view.ViewScale) with
+            | (s) when s < Consts.zoomInLimit -> Consts.zoomInLimit + 0.00000001<m/px>
+            | (s) when s > Consts.zoomOutLimit -> Consts.zoomOutLimit - 0.00000001<m/px>
+            | (s) -> view.ViewScale + scaleQty
 
-        let newViewScale = view.ViewScale + clampedScale
         let newBoundsWidth =  (float Consts.screenWidth) * 1.0<px> * newViewScale
         let newBoundsHeight = (float Consts.screenHeight) * 1.0<px> * newViewScale
         let center = Rectangle.center view.BoundingBox
