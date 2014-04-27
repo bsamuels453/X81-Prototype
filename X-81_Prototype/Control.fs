@@ -38,9 +38,9 @@ module Control =
         let delta = wheelDelta
         wheelDelta <- 0
         {
-            PrevLeftPressed=leftPressed
-            PrevRightPressed=rightPressed
-            PrevMiddlePressed=middlePressed
+            PrevLeftPressed=prevMouseState.LeftPressed
+            PrevRightPressed=prevMouseState.RightPressed
+            PrevMiddlePressed=prevMouseState.MiddlePressed
             ScrollWheelDelta = delta
             LeftPressed=leftPressed
             RightPressed=rightPressed
