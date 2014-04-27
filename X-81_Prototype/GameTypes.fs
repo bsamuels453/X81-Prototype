@@ -42,7 +42,7 @@ module GameTypes =
     }
 
     type GameState = {
-        PlayerShip : ShipState
-        EnemyShip : ShipState
         GameView : GameView
+        SelectedObj : ObjectId option
+        Ships : ShipState list
     }

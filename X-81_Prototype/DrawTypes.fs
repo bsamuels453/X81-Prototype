@@ -11,6 +11,7 @@ module DrawTypes =
     }
     and DrawableState = {
         Id : ObjectId
+        TrackingId : ObjectId
         ZLayer : float
         AutoUpdate : bool
         Update : (GameState -> DrawableState -> DrawableState)

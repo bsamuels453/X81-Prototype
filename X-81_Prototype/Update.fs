@@ -153,14 +153,20 @@ module Update =
         {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel; AABB=newAABB}
 
 
-    let playerShipTick (prevShipState:ShipState) keyboardState mouseState=
-        let postMovementTick = movementTick prevShipState keyboardState mouseState
+    let shipTick curShips keyboardState mouseState=
+        let tick ship =
+            match ship.PlayerControlled with
+            | true -> movementTick ship keyboardState mouseState
+            | false -> ship
+        let newShipStates = curShips |> List.map tick
 
-        postMovementTick
+        newShipStates
 
-    let selectionTick gameState mouseState =
-        
-        ()
+    let selectionTick gameState mouseState : ObjectId option =
+        if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
+            None
+        else
+            None
 
     let zoomTick gameState mouseState =
         if mouseState.ScrollWheelDelta <> 0 then

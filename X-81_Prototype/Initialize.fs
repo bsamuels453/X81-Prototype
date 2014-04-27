@@ -59,9 +59,9 @@ module Initialize =
     let genDefaultGameState view =
         
         {
-            PlayerShip = genPlayerShip()
-            EnemyShip = genEnemyShip()
             GameView = ViewFuncs.createDefaultView()
+            SelectedObj = None
+            Ships = [genPlayerShip(); genEnemyShip()]
         }
         
     ()

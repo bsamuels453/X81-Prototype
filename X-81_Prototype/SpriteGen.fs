@@ -9,8 +9,11 @@ module SpriteGen =
     open MParticles.Renderers.SFML;
     open ParticleSys;
 
-    let private updateShipSprite extractShip (sprite:Shape) gameState (spriteState:DrawableState)  =
-        let ship:ShipState = extractShip gameState
+    let private extractShip gameState id =
+        gameState.Ships |> List.find (fun s -> s.Id = id)
+
+    let private updateShipSprite (sprite:Shape) gameState (spriteState:DrawableState)  =
+        let ship:ShipState = extractShip gameState spriteState.TrackingId
         sprite.Position <- Vec2<m>.toVec2f ship.Position
         sprite.Rotation <- float32 (radToDeg ship.Rotation)
         spriteState
@@ -26,16 +29,21 @@ module SpriteGen =
             sprite.Draw (win,RenderStates.Default)
         let dispose() =
             sprite.Dispose()
-        {Id=ship.Id; ZLayer= 1.0; Update=(updateSprite sprite); AutoUpdate=true; Draw = draw; Dispose = dispose}
+        {
+            Id=GameFuncs.generateObjectId(); 
+            TrackingId=ship.Id; 
+            ZLayer= 1.0; 
+            Update=(updateSprite sprite); 
+            AutoUpdate=true; 
+            Draw = draw; 
+            Dispose = dispose
+        }
 
     let private genPlayerShipSpriteState ship =
-        let createShipSprite = (createShipSprite (updateShipSprite (fun gs -> gs.PlayerShip))) ship
-        Draw.queueDrawableAddition createShipSprite
+        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite)) ship)
 
     let private genEnemyShipSpriteState ship =
-        let updateShipSprite = updateShipSprite (fun gs -> gs.EnemyShip)
-        let createShipSprite = (createShipSprite updateShipSprite) ship
-        Draw.queueDrawableAddition createShipSprite
+        Draw.queueDrawableAddition ((createShipSprite (updateShipSprite)) ship)
 
     let private updateParticleSys extractShip forwardVec gameTimeRef (particleSys:SmokeParticleSystem) gameState spriteState =
         let ship:ShipState = extractShip gameState
@@ -59,28 +67,32 @@ module SpriteGen =
             particleSys.Draw (win,!gameTimeRef)
         let dispose() =
             ()
-        {Id=GameFuncs.generateObjectId(); ZLayer= 1.0; Update=updateSys; AutoUpdate=true; Draw = draw; Dispose = dispose}
+        {
+            Id=GameFuncs.generateObjectId();
+            TrackingId=GameFuncs.generateObjectId();
+            ZLayer= 1.0;
+            Update=updateSys;
+            AutoUpdate=true;
+            Draw = draw;
+            Dispose = dispose
+        }
 
 
     let private genDefaultEnginePSystems forwardVec gameTimeRef =
         let  particles = new SmokeParticleSystem(new Vector2(0.0f,0.0f), new Vector2(0.0f,0.0f))
-        let update = updateParticleSys (fun gs -> gs.PlayerShip) forwardVec gameTimeRef particles
+        let update = updateParticleSys (fun gs -> gs.Ships.[0]) forwardVec gameTimeRef particles
         let createParticleSys = createParticleSys gameTimeRef update particles
         Draw.queueDrawableAddition createParticleSys
         ()
 
+    let private updateAABB (sprite:Shape) gameState (spriteState:DrawableState)  =
+        let aabb = (extractShip gameState spriteState.TrackingId).AABB
+        sprite.Position <- Vec2<m>.toVec2f aabb.Origin
+        spriteState
 
-    let private showAABBs gameState =
-        let extract (gamestate:GameState) = gamestate.PlayerShip.AABB
-
-        let upd (sprite:Shape) gameState (spriteState:DrawableState)  =
-            let aabb = extract gameState
-            sprite.Position <- Vec2<m>.toVec2f aabb.Origin
-            spriteState
-
-
+    let private showShipAABB ship =
         let createGhost (upda) (resources:GameResources)=
-            let v = Vec2<_>.toVec2f (Rectangle.extractDims gameState.PlayerShip.AABB)
+            let v = Vec2<_>.toVec2f (Rectangle.extractDims ship.AABB)
             let sprite = new RectangleShape(v)
             sprite.Position <- new Vector2f(0.0f, 0.0f)
             sprite.Rotation <- 0.0f
@@ -92,18 +104,29 @@ module SpriteGen =
                 sprite.Draw(win, RenderStates.Default)
             let dispose() = sprite.Dispose()
 
-            {Id=GameFuncs.generateObjectId(); ZLayer= 1.0; Update=(upda sprite); AutoUpdate=true; Draw = draw; Dispose = dispose}
+            {
+                Id=GameFuncs.generateObjectId();
+                TrackingId=ship.Id;
+                ZLayer= 1.0;
+                Update=(upda sprite);
+                AutoUpdate=true;
+                Draw = draw;
+                Dispose = dispose
+            }
 
-        Draw.queueDrawableAddition (createGhost (upd))
+        Draw.queueDrawableAddition (createGhost (updateAABB))
+        ()
 
+    let private showAABBs gameState =
+        gameState.Ships |> List.map showShipAABB |> ignore
 
     let genDefaultScene gameState gameTimeRef=
-        genPlayerShipSpriteState gameState.PlayerShip
-        genEnemyShipSpriteState gameState.EnemyShip
-        genDefaultEnginePSystems {X=0.0<m/s^2>; Y= -1.0<m/s^2>} gameTimeRef
-        genDefaultEnginePSystems {X=0.0<m/s^2>; Y= 1.0<m/s^2>} gameTimeRef
-        genDefaultEnginePSystems {X=1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
-        genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
+        genPlayerShipSpriteState gameState.Ships.[0]
+        genEnemyShipSpriteState gameState.Ships.[1]
+        //genDefaultEnginePSystems {X=0.0<m/s^2>; Y= -1.0<m/s^2>} gameTimeRef
+        //genDefaultEnginePSystems {X=0.0<m/s^2>; Y= 1.0<m/s^2>} gameTimeRef
+        //genDefaultEnginePSystems {X=1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
+        //genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         showAABBs gameState
 
         ()
