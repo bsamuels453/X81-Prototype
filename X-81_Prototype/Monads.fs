@@ -45,3 +45,9 @@ module Monads =
 
         member this.Delay(f) = 
             f()
+
+    type ConditionBuilder() =
+        member x.Bind(v, f) = if v then f() else false
+        member x.Return(v) = v
+
+    let condition = ConditionBuilder()
