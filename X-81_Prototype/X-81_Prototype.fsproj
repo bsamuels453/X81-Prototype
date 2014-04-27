@@ -96,10 +96,6 @@
       <SubType>
       </SubType>
     </Compile>
-    <Compile Include="Matrix.fs">
-      <SubType>
-      </SubType>
-    </Compile>
     <Compile Include="GameFuncs.fs">
       <SubType>
       </SubType>
