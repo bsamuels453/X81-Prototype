@@ -29,6 +29,9 @@ module BasicTypes =
                 let yunit = float <| Math.Sin (float angle)
                 {X=xunit*length; Y=yunit*length}
 
+            static member zero() =
+                {X=0.0<_>; Y=0.0<_>}
+
             static member fromPolar polarVec =
                 let xunit = float <| Math.Cos (float polarVec.Angle)
                 let yunit = float <| Math.Sin (float polarVec.Angle)
