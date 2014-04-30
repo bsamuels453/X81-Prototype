@@ -3,6 +3,7 @@
 [<AutoOpen>]
 module ControlTypes =
     open SFML.Window
+    open System.Diagnostics
 
     type KeyState =
         | Pressed
@@ -13,14 +14,21 @@ module ControlTypes =
         Key : Keyboard.Key
     }
 
+    type ButtonState = {
+        ClickCompleted : bool
+        IsDragging : bool
+        DragOrigin : Vec2<m>
+        DraggedArea : Rectangle<m> option
+        DragCompleted : bool
+        PressedTimer : Stopwatch option
+        IsButtonPressed : bool
+    }
+
     type MouseState = {
-        PrevLeftPressed : bool
-        PrevRightPressed : bool
-        PrevMiddlePressed : bool
+        Left : ButtonState
+        Right : ButtonState
+        Middle : ButtonState
         ScrollWheelDelta : int
-        LeftPressed : bool
-        RightPressed : bool
-        MiddlePressed : bool
         ScreenPosition : Vec2<px>
         WorldPosition : Vec2<m>
     }

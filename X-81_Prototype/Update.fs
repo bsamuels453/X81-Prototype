@@ -11,17 +11,21 @@ module Update =
         else
             ceilCandid
 
-    let private getLinearVelCeil velocity rotation keyboardState shipAttribs : Vec2<m/s> =
+    let private getLinearVelCeil ship dest : Vec2<m/s> =
+        let velocity = ship.Velocity
+        let rotation = ship.Rotation
+        let shipAttribs = ship.Attribs
+        (*
         let wState = (Control.getKeyState keyboardState Keyboard.Key.W).KeyState
         let aState = (Control.getKeyState keyboardState Keyboard.Key.A).KeyState
         let sState = (Control.getKeyState keyboardState Keyboard.Key.S).KeyState
         let dState = (Control.getKeyState keyboardState Keyboard.Key.D).KeyState
-
-        let forwardUnit = Vec2<_>.getFromAngle (rotation) 1.0
-        let sidewaysUnit = Vec2<_>.getFromAngle (rotation-1.55<rad>) 1.0
+        *)
+        let forwardUnit = Vec2.getFromAngle (rotation) 1.0
+        let sidewaysUnit = Vec2.getFromAngle (rotation-1.55<rad>) 1.0
         let sidewaysProjection = velocity.X*sidewaysUnit.X + velocity.Y*sidewaysUnit.Y
         let forwardProjection = velocity.X*forwardUnit.X + velocity.Y*forwardUnit.Y
-
+        (*
         let forwardAccel = 
             match wState with 
             | KeyState.Pressed -> - calcVelCeil sidewaysProjection shipAttribs
@@ -38,7 +42,11 @@ module Update =
             match dState with 
             | KeyState.Pressed -> calcVelCeil forwardProjection shipAttribs
             | _ -> 0.0<m/s>
-
+        *)
+        let forwardAccel = - calcVelCeil sidewaysProjection shipAttribs
+        let reverseAccel = 0.0<m/s>
+        let portAccel = 0.0<m/s>
+        let starboardAccel = 0.0<m/s>
 
         let sumForward = forwardAccel+reverseAccel
         let sumSideways = starboardAccel + portAccel
@@ -91,10 +99,8 @@ module Update =
             else ang
         clamp ang
 
-    let private calcRotVelFromMousepos (prevShipState:ShipState) (mouseState:MouseState) =
-        let mousePos = mouseState.WorldPosition
-        
-        let posDiff = mousePos - prevShipState.Position
+    let private calcRotVelFromMousepos (prevShipState:ShipState) target =        
+        let posDiff = target - prevShipState.Position
         let targetAngle = Math.Atan2(float posDiff.Y, float posDiff.X) * 1.0<rad> + Math.PI / 2.0 * 1.0<rad>
 
         let angleDiff = clampAngle (targetAngle - prevShipState.Rotation)
@@ -174,52 +180,22 @@ module Update =
 
         newShipStates
 
-    let tickMouseState gameState mouseState =
-        let dragSelection = 
-            match gameState.DragOrigin with
-            | None -> None
-            | Some(origin) -> 
-                if not mouseState.LeftPressed && mouseState.PrevLeftPressed then
-                    Some (Rectangle<m>.fromVecs mouseState.WorldPosition origin)
-                else
-                    None
-
-        let dragOrigin = 
-            if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
-                Some(mouseState.WorldPosition)
-            else
-                None
-        {gameState with DragOrigin=dragOrigin; DragSelection=dragSelection}
-
     let selectionTick gameState mouseState : ObjectId list =
-        let selectedShips =
-            if not mouseState.LeftPressed && mouseState.PrevLeftPressed then
-                match gameState.DragSelection with
-                    | None -> gameState.SelectedObj
-                    | Some(origin) -> 
-                        let isShipWithinArea area ship =
-                            Monads.condition {
-                                do! Rectangle.containsVec area ship.Position
-                                do! ship.PlayerControlled
-                                return true
-                                }
-                        let selectionArea = Rectangle<m>.fromVecs origin mouseState.WorldPosition
-                        let selectedShips = gameState.Ships |> List.filter (isShipWithinArea selectionArea)
-                        selectedShips |> List.map (fun s -> s.Id)
-            else
-                gameState.SelectedObj
-
-        selectedShips
-
-
-    let attackTick gameState mouseState =
-        if mouseState.RightPressed && not mouseState.PrevRightPressed then
-            ()
+        if mouseState.Left.DragCompleted then
+            let isShipWithinArea area ship =
+                Monads.condition {
+                    do! Rectangle.containsVec area ship.Position
+                    do! ship.PlayerControlled
+                    return true
+                    }
+            match mouseState.Left.DraggedArea with
+                |Some(area) -> 
+                    let selectedShips = gameState.Ships |> List.filter (isShipWithinArea area)
+                    selectedShips |> List.map (fun s -> s.Id)
+                | None -> 
+                    failwith "that shouldnt happen"; []
         else
-            ()
-
-
-        gameState.Ships
+            gameState.SelectedShips
 
 
     let zoomTick gameState mouseState =
@@ -227,3 +203,4 @@ module Update =
             modifyViewScale gameState.GameView ((float mouseState.ScrollWheelDelta) * -0.2<m/px>)
         else
             gameState.GameView
+
