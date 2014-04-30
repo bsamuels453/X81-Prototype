@@ -79,6 +79,14 @@ module BasicTypes =
             static member (+) (rect, vec) = {rect with Origin=rect.Origin + vec}
             static member (+) (vec, rect) = {rect with Origin=rect.Origin + vec}
 
+
+            static member fromVecs vec1 vec2 =
+                let width = abs(vec1.X - vec2.X)
+                let height = abs(vec1.Y - vec2.Y)
+                let originX = if vec1.X < vec2.X then vec1.X else vec2.X
+                let originY = if vec1.Y < vec2.Y then vec1.Y else vec2.Y
+                {Origin={X=originX;Y=originY}; Width=width; Height=height}
+
             static member containsVec (rect:Rectangle<'u>) (vec2:Vec2<'u>) =
                 ((((rect.Origin.X <= vec2.X) && (vec2.X < (rect.Origin.X + rect.Width))) && (rect.Origin.Y <= vec2.Y)) && (vec2.Y < (rect.Origin.Y + rect.Height)));
 
