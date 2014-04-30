@@ -121,7 +121,7 @@ module SpriteGen =
         let doDraw = ref false
 
         let updateGhost (sprite:RectangleShape) gameState drawableState =
-            match gameState.SelectedObj with
+            match gameState.SelectedShips with
             |[] -> 
                 doDraw := false
             |[shipId] ->

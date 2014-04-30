@@ -62,10 +62,8 @@ module Initialize =
         
         {
             GameView = ViewFuncs.createDefaultView()
-            SelectedObj = []
+            SelectedShips = []
             Ships = [genPlayerShip(); genEnemyShip()]
-            DragOrigin = None
-            DragSelection = None
         }
         
     ()

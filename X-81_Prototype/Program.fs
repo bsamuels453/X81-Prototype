@@ -77,7 +77,7 @@ let main argv =
         let newGameView = Update.zoomTick gameState mouseState
         gameState <- {gameState with GameView = newGameView}
         let newSelect = Update.selectionTick gameState mouseState
-        gameState <- {gameState with SelectedObj = newSelect}
+        gameState <- {gameState with SelectedShips = newSelect}
 
         let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState
         gameState <- {gameState with Ships=newShips}

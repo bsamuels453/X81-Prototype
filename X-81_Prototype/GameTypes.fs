@@ -53,6 +53,6 @@ module GameTypes =
 
     type GameState = {
         GameView : GameView
-        SelectedObj : ObjectId list
+        SelectedShips : ObjectId list
         Ships : ShipState list
     }
