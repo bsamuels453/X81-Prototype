@@ -79,7 +79,7 @@ let main argv =
         let newSelect = Update.selectionTick gameState mouseState
         gameState <- {gameState with SelectedObj = newSelect}
 
-        let newShips = Update.shipTick gameState.Ships keyboardState mouseState
+        let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState
         gameState <- {gameState with Ships=newShips}
 
         renderState <- Draw.updateRenderState renderState gameState resources

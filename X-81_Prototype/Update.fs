@@ -118,64 +118,109 @@ module Update =
         vel
 
 
-    let private rotationTick (prevShipState:ShipState) keyboardState mouseState=
+    let private rotationTick (shipState:ShipState) dest=
         let rotVel =
-            if mouseState.RightPressed then
-                calcRotVelFromMousepos prevShipState mouseState
-            else
+            //if mouseState.RightPressed then
+            calcRotVelFromMousepos shipState dest
+            (*else
                 let rawRotAccel = getShipInputRotAccel keyboardState
                 let accel = applyFriction prevShipState.RotVelocity rawRotAccel Consts.rotAccel
-                prevShipState.RotVelocity + accel * (1.0<s>/60.0)
+                prevShipState.RotVelocity + accel * (1.0<s>/60.0)*)
 
-        let newShipRot = prevShipState.Rotation + rotVel * (1.0<s>/60.0)
+        let newShipRot = shipState.Rotation + rotVel * (1.0<s>/60.0)
         (newShipRot, rotVel)
 
 
-    let private linearTick (prevShipState:ShipState) keyboardState mouseState =
-        let newVelCeil =  getLinearVelCeil prevShipState.Velocity prevShipState.Rotation keyboardState prevShipState.Attribs
+    let private linearTick (shipState:ShipState) dest =
+        let newVelCeil =  getLinearVelCeil shipState dest
 
-        let newShipSpeed = ((prevShipState.Velocity * (20.0 - 1.0)) + newVelCeil)/20.0
-        let newShipPos = prevShipState.Position + prevShipState.Velocity * (1.0<s>/60.0)
-        let shipAccel = (newShipSpeed - prevShipState.Velocity) * (1.0/60.0<s>)
-        let newAABBpos = prevShipState.Attribs.AABBShape + newShipPos
+        let newShipSpeed = ((shipState.Velocity * (20.0 - 1.0)) + newVelCeil)/20.0
+        let newShipPos = shipState.Position + shipState.Velocity * (1.0<s>/60.0)
+        let shipAccel = (newShipSpeed - shipState.Velocity) * (1.0/60.0<s>)
+        let newAABBpos = shipState.Attribs.AABBShape + newShipPos
         (newShipPos, newShipSpeed, shipAccel, newAABBpos)
 
+    let private moveToTarget (shipState:ShipState) dest =
+        let (newShipRot, newShipRotVel) = rotationTick shipState dest
+        let (newShipPos, newShipSpeed, newAccel, newAABB) = linearTick shipState dest
 
-    let private movementTick (prevShipState:ShipState) keyboardState mouseState=
-        let (newShipRot, newShipRotVel) = rotationTick prevShipState keyboardState mouseState
-        let (newShipPos, newShipSpeed, newAccel, newAABB) = linearTick prevShipState keyboardState mouseState
-
-
-        Draw.addWorldDebugLine [newShipPos; mouseState.WorldPosition]
+        Draw.addWorldDebugLine [newShipPos; dest]
         let l = (Vec2<m>.getFromAngle (newShipRot - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) + newShipPos
         Draw.addWorldDebugLine [l;newShipPos]
 
-        {prevShipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel; AABB=newAABB}
+        {shipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel; AABB=newAABB}
 
 
-    let shipTick curShips keyboardState mouseState=
+    let private shipAiTick ship =
+        let postMovementTick = 
+            match ship.AiMovementState with
+                | AiMovementState.Idle -> ship
+                | AiMovementState.MovingToPoint(pt) -> moveToTarget ship pt
+                | _ -> failwith "not supported"
+        let postCombatTick =
+            match ship.AiCombatState with
+                | AiCombatState.Idle -> postMovementTick
+                | _ -> failwith "not supported"
+
+        postCombatTick
+
+
+    let allShipsTick curShips keyboardState mouseState=
         let tick ship =
             match ship.PlayerControlled with
-            | true -> movementTick ship keyboardState mouseState
+            | true -> shipAiTick ship
             | false -> ship
         let newShipStates = curShips |> List.map tick
 
         newShipStates
 
-    let selectionTick gameState mouseState : ObjectId option =
-        if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
-            let getClickedShip ship =
-                Monads.condition {
-                    do! Rectangle.containsVec ship.AABB mouseState.WorldPosition
-                    do! ship.PlayerControlled
-                    return true
-                }
-            let clickedShip = gameState.Ships |> List.tryFind getClickedShip
-            match clickedShip with
-                | None -> None
-                | Some(ship) -> Some(ship.Id)
+    let tickMouseState gameState mouseState =
+        let dragSelection = 
+            match gameState.DragOrigin with
+            | None -> None
+            | Some(origin) -> 
+                if not mouseState.LeftPressed && mouseState.PrevLeftPressed then
+                    Some (Rectangle<m>.fromVecs mouseState.WorldPosition origin)
+                else
+                    None
+
+        let dragOrigin = 
+            if mouseState.LeftPressed && not mouseState.PrevLeftPressed then
+                Some(mouseState.WorldPosition)
+            else
+                None
+        {gameState with DragOrigin=dragOrigin; DragSelection=dragSelection}
+
+    let selectionTick gameState mouseState : ObjectId list =
+        let selectedShips =
+            if not mouseState.LeftPressed && mouseState.PrevLeftPressed then
+                match gameState.DragSelection with
+                    | None -> gameState.SelectedObj
+                    | Some(origin) -> 
+                        let isShipWithinArea area ship =
+                            Monads.condition {
+                                do! Rectangle.containsVec area ship.Position
+                                do! ship.PlayerControlled
+                                return true
+                                }
+                        let selectionArea = Rectangle<m>.fromVecs origin mouseState.WorldPosition
+                        let selectedShips = gameState.Ships |> List.filter (isShipWithinArea selectionArea)
+                        selectedShips |> List.map (fun s -> s.Id)
+            else
+                gameState.SelectedObj
+
+        selectedShips
+
+
+    let attackTick gameState mouseState =
+        if mouseState.RightPressed && not mouseState.PrevRightPressed then
+            ()
         else
-            gameState.SelectedObj
+            ()
+
+
+        gameState.Ships
+
 
     let zoomTick gameState mouseState =
         if mouseState.ScrollWheelDelta <> 0 then

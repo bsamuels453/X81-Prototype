@@ -24,8 +24,17 @@ module GameTypes =
     }
 
     type Affiliation =
-    |Red
-    |Blue
+        | Red
+        | Blue
+
+    type AiMovementState =
+        | Idle
+        | MovingToPoint of Vec2<m>
+        | KeepingShipAtRange of ObjectId * float<m>
+
+    type AiCombatState =
+        | Idle
+        | AttackingEnemShip of ObjectId
 
     type ShipState = {
         Id : ObjectId
@@ -34,7 +43,8 @@ module GameTypes =
         RotVelocity : float<rad/s>
         Rotation : float<rad>
         Acceleration : Vec2<m/s^2>
-        Destination : Vec2<m>
+        AiMovementState : AiMovementState
+        AiCombatState : AiCombatState
         AABB : Rectangle<m>
         Affiliation : Affiliation
         PlayerControlled : bool

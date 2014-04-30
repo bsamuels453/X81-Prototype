@@ -35,7 +35,8 @@ module Initialize =
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
             Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
-            Destination = {X=0.0<m>; Y=0.0<m>}
+            AiMovementState = AiMovementState.Idle
+            AiCombatState = AiCombatState.Idle
             Affiliation = Affiliation.Blue
             AABB = {X=0.0<m>; Y=0.0<m>} + defaultShipAttribs.AABBShape
             PlayerControlled = true
@@ -50,7 +51,8 @@ module Initialize =
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
             Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
-            Destination = {X=200.0<m>; Y=50.0<m>}
+            AiMovementState = AiMovementState.Idle
+            AiCombatState = AiCombatState.Idle
             Affiliation = Affiliation.Red
             AABB = {X=200.0<m>; Y=50.0<m>} + defaultShipAttribs.AABBShape
             PlayerControlled = false
@@ -60,8 +62,10 @@ module Initialize =
         
         {
             GameView = ViewFuncs.createDefaultView()
-            SelectedObj = None
+            SelectedObj = []
             Ships = [genPlayerShip(); genEnemyShip()]
+            DragOrigin = None
+            DragSelection = None
         }
         
     ()
