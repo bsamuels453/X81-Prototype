@@ -122,9 +122,9 @@ module SpriteGen =
 
         let updateGhost (sprite:RectangleShape) gameState drawableState =
             match gameState.SelectedObj with
-            |None -> 
+            |[] -> 
                 doDraw := false
-            |Some(shipId) ->
+            |[shipId] ->
                 doDraw := true
                 let ship = extractShip gameState shipId
                 sprite.Position <- Vec2<_>.toVec2f (Rectangle.center ship.AABB)
