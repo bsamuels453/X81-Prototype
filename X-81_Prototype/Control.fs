@@ -36,11 +36,10 @@ module Control =
         let onMouseDown() =
             {
                 ClickCompleted = false
-                IsDragging = true
                 DragOrigin = mousePos
                 PressedTimer = Some(Stopwatch.StartNew())
                 IsButtonPressed = true
-                DraggedArea = None
+                DraggedArea = Some(Rectangle<m>.fromVecs mousePos mousePos)
                 DragCompleted = false
             }
         let onMouseHeldDown() =
@@ -62,26 +61,26 @@ module Control =
 
         let onMouseUp() =
             let area = Some(Rectangle<m>.fromVecs prevState.DragOrigin mousePos)
-            if prevState.IsDragging then
+            match prevState.DraggedArea with
+            | Some(_) -> 
                 {
                 prevState with
                     DraggedArea = area
                     IsButtonPressed = false
-                    IsDragging = false
                     DragCompleted = true
                 }
-            else
+            | None ->
                 {
                 prevState with
                     IsButtonPressed = false
                     DraggedArea = None
                     ClickCompleted = true
                 }
+
         
         let onMouseHeldUp() =
             {
                 ClickCompleted = false
-                IsDragging = false
                 DragOrigin = Vec2<m>.zero()
                 DraggedArea = None
                 PressedTimer = None
@@ -126,7 +125,6 @@ module Control =
     let private defaultButtonState() =
         {
             ClickCompleted = false
-            IsDragging = false
             DragOrigin = Vec2<m>.zero()
             DraggedArea = None
             PressedTimer = None

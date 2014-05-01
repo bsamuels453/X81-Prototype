@@ -16,7 +16,6 @@ module ControlTypes =
 
     type ButtonState = {
         ClickCompleted : bool
-        IsDragging : bool
         DragOrigin : Vec2<m>
         DraggedArea : Rectangle<m> option
         DragCompleted : bool
