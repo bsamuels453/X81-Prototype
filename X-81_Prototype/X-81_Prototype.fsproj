@@ -88,11 +88,11 @@
       <SubType>
       </SubType>
     </Compile>
-    <Compile Include="DrawTypes.fs">
+    <Compile Include="ControlTypes.fs">
       <SubType>
       </SubType>
     </Compile>
-    <Compile Include="ControlTypes.fs">
+    <Compile Include="DrawTypes.fs">
       <SubType>
       </SubType>
     </Compile>
