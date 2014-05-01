@@ -158,18 +158,38 @@ module SpriteGen =
         ()
 
     let genSelectionGhost() =
-        let doDraw = ref false
+        let doDraw = ref true
         let updateGhost (sprite:RectangleShape) _ mouseState drawableState =
             match mouseState.Left.DraggedArea with
             | Some(area) ->
                 doDraw := true
                 sprite.Position <- Vec2<_>.toVec2f mouseState.Left.DragOrigin
-                //sprite.Scale <- new Vector2f(mouseState.Left.DraggedArea)
-                ()
+                sprite.Size <- new Vector2f(float32 area.Width, float32 area.Height)
             | None -> 
                 doDraw := false               
+            drawableState
 
-        ()
+        let createGhost (resources:GameResources) =
+            let sprite = new RectangleShape(new Vector2f(100.0f, 100.0f))
+            sprite.OutlineThickness <- 3.0f
+            sprite.OutlineColor <- new Color(255uy, 0uy, 0uy)
+            sprite.FillColor <- new Color(0uy, 0uy, 0uy, 0uy)
+            
+            let draw state win =
+                if !doDraw then
+                    sprite.Draw(win, RenderStates.Default)
+                else ()
+            let dispose() = sprite.Dispose()
+
+            {
+                Id=GameFuncs.generateObjectId();
+                ZLayer= 1.0;
+                Update=(updateGhost sprite);
+                AutoUpdate=true;
+                Draw = draw;
+                Dispose = dispose
+            }
+        Draw.queueDrawableAddition (createGhost)
 
     let genDefaultScene gameState gameTimeRef=
         genPlayerShipSpriteState gameState.Ships.[0]
@@ -180,5 +200,6 @@ module SpriteGen =
         //genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         showAABBs gameState
         genTargetGhost()
+        genSelectionGhost()
         ()
     ()

@@ -194,6 +194,17 @@ module Update =
                     selectedShips |> List.map (fun s -> s.Id)
                 | None -> 
                     failwith "that shouldnt happen"; []
+        elif mouseState.Left.ClickCompleted then
+            let isCursorWithinArea cursor ship =
+                Monads.condition {
+                    do! Rectangle.containsVec ship.AABB cursor
+                    do! ship.PlayerControlled
+                    return true                
+                    }
+            let selectedShip = gameState.Ships |> List.tryFind (isCursorWithinArea mouseState.WorldPosition)
+            match selectedShip with
+            | Some(ship) -> [ship.Id]
+            | None -> []
         else
             gameState.SelectedShips
 
