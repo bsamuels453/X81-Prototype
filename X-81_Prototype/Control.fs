@@ -45,12 +45,12 @@ module Control =
         let onMouseHeldDown() =
             let area = Some(Rectangle<m>.fromVecs prevState.DragOrigin mousePos)
             match prevState.PressedTimer with
-            | None -> prevState
+            | None -> {prevState with DraggedArea = area}
             | Some(timer) -> 
                 timer.Stop()
                 let elapsed = timer.Elapsed.TotalMilliseconds
                 timer.Start()
-                if elapsed > 100.0 then
+                if elapsed > 300.0 then
                     { 
                         prevState with
                             PressedTimer = None
@@ -61,21 +61,30 @@ module Control =
 
         let onMouseUp() =
             let area = Some(Rectangle<m>.fromVecs prevState.DragOrigin mousePos)
-            match prevState.DraggedArea with
-            | Some(_) -> 
+            let dragTermination() =
                 {
                 prevState with
                     DraggedArea = area
                     IsButtonPressed = false
                     DragCompleted = true
                 }
-            | None ->
+            let clickTermination() =
                 {
                 prevState with
-                    IsButtonPressed = false
                     DraggedArea = None
+                    IsButtonPressed = false
                     ClickCompleted = true
                 }
+
+            match prevState.PressedTimer with
+            | Some(_) -> 
+                match prevState.DraggedArea with
+                | Some(area) -> 
+                    if area.Width <> 0.0<m> || area.Height <> 0.0<m> then dragTermination()
+                    else clickTermination()
+                | None -> clickTermination()
+            | None -> dragTermination()
+
 
         
         let onMouseHeldUp() =
