@@ -82,7 +82,7 @@ let main argv =
         let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState
         gameState <- {gameState with Ships=newShips}
 
-        renderState <- Draw.updateRenderState renderState gameState resources
+        renderState <- Draw.updateRenderState renderState gameState mouseState resources
 
         Draw.draw win renderState gameTime
         

@@ -35,14 +35,14 @@ module Draw =
          
         drawableSprites |> List.filter (fun elem -> not (List.exists (elem.Id.Equals) idsToRemove ))
 
-    let private updateSprites tempRenderState gameState sprites idsToUpdate=
+    let private updateSprites tempRenderState gameState mouseState sprites idsToUpdate=
         let rec applyUpdates (sprites:DrawableState []) updates =
             match updates with
             | [] -> ()
             | h::t ->
                 let idx = sprites |> Array.findIndex (fun s -> s.Id.Equals h)
                 let sprite = sprites.[idx]
-                sprites.[idx] <- sprite.Update gameState sprite
+                sprites.[idx] <- sprite.Update gameState mouseState sprite
                 applyUpdates sprites t
                 
         let autoUpdateSprites = 
@@ -56,7 +56,7 @@ module Draw =
         applyUpdates drawableArr fullIdsToUpdate
         drawableArr
 
-    let updateDrawablesState renderState gameState textures =
+    let updateDrawablesState renderState gameState mouseState textures =
         let drawableSprites = 
             match drawablesToAdd.Length with
             | 0 -> renderState.Drawables
@@ -68,12 +68,12 @@ module Draw =
 
         let tempRenderState = {renderState with Drawables=filteredSprites}
 
-        let updatedSprites = updateSprites tempRenderState gameState filteredSprites drawablesToUpdate
+        let updatedSprites = updateSprites tempRenderState gameState mouseState filteredSprites drawablesToUpdate
         drawablesToUpdate <- []
         updatedSprites
 
-    let updateRenderState renderState gameState textures =
-        let updatedDrawables = updateDrawablesState renderState gameState textures
+    let updateRenderState renderState gameState mouseState textures =
+        let updatedDrawables = updateDrawablesState renderState gameState mouseState textures
 
         renderState.View.Center <- Vec2<m>.toVec2f (Rectangle.center gameState.GameView.BoundingBox)
         renderState.View.Size <- Vec2<m>.toVec2f {X=gameState.GameView.BoundingBox.Width; Y=gameState.GameView.BoundingBox.Height}

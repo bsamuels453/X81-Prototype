@@ -12,7 +12,7 @@ module SpriteGen =
     let private extractShip gameState id =
         gameState.Ships |> List.find (fun s -> s.Id = id)
 
-    let private updateShipSprite trackedId (sprite:Shape) gameState (spriteState:DrawableState)  =
+    let private updateShipSprite trackedId (sprite:Shape) gameState _ (spriteState:DrawableState)  =
         let ship:ShipState = extractShip gameState trackedId
         sprite.Position <- Vec2<m>.toVec2f ship.Position
         sprite.Rotation <- float32 (radToDeg ship.Rotation)
@@ -44,7 +44,7 @@ module SpriteGen =
     let private genEnemyShipSpriteState (ship:ShipState) =
         Draw.queueDrawableAddition ((createShipSprite (updateShipSprite ship.Id)) ship)
 
-    let private updateParticleSys extractShip forwardVec gameTimeRef (particleSys:SmokeParticleSystem) gameState spriteState =
+    let private updateParticleSys extractShip forwardVec gameTimeRef (particleSys:SmokeParticleSystem) gameState _ spriteState =
         let ship:ShipState = extractShip gameState
         let actualForward = (Vec2.unit (Vec2.rotate forwardVec ship.Rotation)) * 1.0<s>
         let mag = Vec2.project ship.Acceleration actualForward
@@ -83,7 +83,7 @@ module SpriteGen =
         Draw.queueDrawableAddition createParticleSys
         ()
 
-    let private updateAABB targetId (sprite:Shape) gameState (spriteState:DrawableState)  =
+    let private updateAABB targetId (sprite:Shape) gameState _ (spriteState:DrawableState)  =
         let aabb = (extractShip gameState targetId).AABB
         sprite.Position <- Vec2<m>.toVec2f aabb.Origin
         spriteState
@@ -120,7 +120,7 @@ module SpriteGen =
     let genTargetGhost() =
         let doDraw = ref false
 
-        let updateGhost (sprite:RectangleShape) gameState drawableState =
+        let updateGhost (sprite:RectangleShape) gameState _ drawableState =
             match gameState.SelectedShips with
             |[] -> 
                 doDraw := false
@@ -155,6 +155,20 @@ module SpriteGen =
                 Dispose = dispose
             }
         Draw.queueDrawableAddition (createGhost)
+        ()
+
+    let genSelectionGhost() =
+        let doDraw = ref false
+        let updateGhost (sprite:RectangleShape) _ mouseState drawableState =
+            match mouseState.Left.DraggedArea with
+            | Some(area) ->
+                doDraw := true
+                sprite.Position <- Vec2<_>.toVec2f mouseState.Left.DragOrigin
+                //sprite.Scale <- new Vector2f(mouseState.Left.DraggedArea)
+                ()
+            | None -> 
+                doDraw := false               
+
         ()
 
     let genDefaultScene gameState gameTimeRef=

@@ -13,7 +13,7 @@ module DrawTypes =
         Id : ObjectId
         ZLayer : float
         AutoUpdate : bool
-        Update : (GameState -> DrawableState -> DrawableState)
+        Update : (GameState -> MouseState -> DrawableState -> DrawableState)
         Draw : (DrawableState -> RenderWindow -> unit)
         Dispose : (unit -> unit)
     }
