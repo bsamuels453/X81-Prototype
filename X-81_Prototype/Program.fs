@@ -79,6 +79,9 @@ let main argv =
         let newSelect = Update.selectionTick gameState mouseState
         gameState <- {gameState with SelectedShips = newSelect}
 
+        let movedShips = Update.movementTarSelectTick gameState mouseState
+        gameState <- {gameState with Ships = movedShips}
+
         let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState
         gameState <- {gameState with Ships=newShips}
 

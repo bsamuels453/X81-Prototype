@@ -209,6 +209,19 @@ module Update =
             gameState.SelectedShips
 
 
+    let movementTarSelectTick gameState mouseState =
+        if mouseState.Right.ClickCompleted then
+            gameState.Ships |> List.map (
+                fun ship ->
+                    if List.exists ship.Id.Equals gameState.SelectedShips then
+                        {ship with AiMovementState = AiMovementState.MovingToPoint(mouseState.WorldPosition)}
+                    else
+                        ship
+            )
+        else
+            gameState.Ships
+
+
     let zoomTick gameState mouseState =
         if mouseState.ScrollWheelDelta <> 0 then
             modifyViewScale gameState.GameView ((float mouseState.ScrollWheelDelta) * -0.2<m/px>)
