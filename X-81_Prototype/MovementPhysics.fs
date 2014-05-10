@@ -4,10 +4,7 @@ module MovementPhysics =
     open System;
     open SFML.Window;
 
-    let private calcVelCeil distToDest (curVel:float<m/s>) shipAttribs =
-        if curVel*1.0<s> > distToDest then
-            ()
-        
+    let private calcVelCeil (curVel:float<m/s>) shipAttribs =
 
         let ceilCandid = (((curVel * (shipAttribs.AccelerationFactor - 1.0)) + shipAttribs.MaxVel)/shipAttribs.AccelerationFactor)
         if ceilCandid < shipAttribs.VelBoost then
@@ -15,18 +12,22 @@ module MovementPhysics =
         else
             ceilCandid
 
-    let getLinearVelCeil ship dest : Vec2<m/s> =
+    let getLinearVelCeil ship moveDat : Vec2<m/s> =
         let velocity = ship.Velocity
         let rotation = ship.Rotation
         let shipAttribs = ship.Attribs
-        let distToDest = Vec2.distance ship.Position dest
+        let distToDest = Vec2.distance ship.Position moveDat.Dest
 
         let forwardUnit = Vec2.getFromAngle (rotation) 1.0
         let sidewaysUnit = Vec2.getFromAngle (rotation-1.55<rad>) 1.0
         let sidewaysProjection = velocity.X*sidewaysUnit.X + velocity.Y*sidewaysUnit.Y
         let forwardProjection = velocity.X*forwardUnit.X + velocity.Y*forwardUnit.Y
 
-        let forwardAccel = - calcVelCeil distToDest sidewaysProjection shipAttribs
+        let forwardAccel = 
+            if distToDest > moveDat.SlowingRadius then 
+                -calcVelCeil sidewaysProjection shipAttribs
+            else
+                (-calcVelCeil sidewaysProjection shipAttribs) * (distToDest / moveDat.SlowingRadius)
         let reverseAccel = 0.0<m/s>
         let portAccel = 0.0<m/s>
         let starboardAccel = 0.0<m/s>

@@ -34,7 +34,7 @@ module GameTypes =
         with
             static member construct dest shipPos =
                 let dist = Vec2<m>.distance dest shipPos
-                {Dest = dest; SlowingRadius = dist * 0.2}
+                {Dest = dest; SlowingRadius = dist * 0.3}
 
     type AiMovementState =
         | Idle

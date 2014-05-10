@@ -21,7 +21,7 @@ module Update =
 
     let private moveToTarget (shipState:ShipState) moveDat =
         let (newShipRot, newShipRotVel) = rotationTick shipState moveDat.Dest
-        let newVel = MovementPhysics.getLinearVelCeil shipState (moveDat.Dest)
+        let newVel = MovementPhysics.getLinearVelCeil shipState moveDat
         let (newShipPos, newShipSpeed, newAccel, newAABB) = linearTick shipState (newVel)
 
         Draw.addWorldDebugLine [newShipPos; moveDat.Dest]
@@ -51,7 +51,7 @@ module Update =
         let cleanupMovementState ship =
             match ship.AiMovementState with
             | AiMovementState.MovingToPoint(dest) -> 
-                if Vec2.distance dest.Dest ship.Position < 5.0<m> then
+                if Vec2.distance dest.Dest ship.Position < 5.0<m> && (Vec2<m/s>.length ship.Velocity) < 3.0<m/s> then
                     {ship with AiMovementState = AiMovementState.Idle}
                 else
                     ship
