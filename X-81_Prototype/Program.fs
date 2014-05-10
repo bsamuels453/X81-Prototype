@@ -56,8 +56,6 @@ let main argv =
     SpriteGen.genDefaultScene gameState gameTime
     let stopwatch = new Stopwatch()
 
-        
-    
     let mutable accumulated = new TimeSpan()
 
     while win.IsOpen() do
@@ -73,22 +71,22 @@ let main argv =
         win.DispatchEvents()
         let keyboardState = Control.pollKeyboard()
         mouseState <- Control.pollMouse mouseState win (ViewFuncs.screenToWorld gameState.GameView)
+        
+        let newMouseState = mouseState
 
-        let newGameView = ControlUpdate.zoomTick gameState mouseState
-        gameState <- {gameState with GameView = newGameView}
-        let newSelect = ControlUpdate.selectionTick gameState mouseState
-        gameState <- {gameState with SelectedShips = newSelect}
+        let update = Monads.state {
+            do! Monads.liftState (ControlUpdate.zoomTick newMouseState)
+            do! Monads.liftState (ControlUpdate.selectionTick newMouseState)
+            do! Monads.liftState (ControlUpdate.movementTarSelectTick newMouseState)
+            do! Monads.liftState (Update.updateShipAis)
+            do! Monads.liftState (ControlUpdate.movementTarSelectTick newMouseState)
+        }
 
-        let movedShips = ControlUpdate.movementTarSelectTick gameState mouseState
-        gameState <- {gameState with Ships = movedShips}
-
-        let newShips = Update.updateShipAis gameState.Ships
-        gameState <- {gameState with Ships=newShips}
+        gameState <- snd (Monads.runState update gameState)
 
         renderState <- Draw.updateRenderState renderState gameState mouseState resources
 
         Draw.draw win renderState gameTime
-        
 
         win.Display()
         let idleTime = getIdleTime stopwatch

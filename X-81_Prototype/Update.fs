@@ -42,28 +42,32 @@ module Update =
         {ship with Position=newShipPos; Velocity=newShipSpeed; Acceleration=shipAccel; AABB=newAABBpos}
 
     let private aiMovementTick ship =
-        let postMovementTick = 
+        let tickMovementState ship =
             match ship.AiMovementState with
                 | AiMovementState.Idle -> tickIdleShip ship
                 | AiMovementState.MovingToPoint(moveDat) -> moveToTarget ship moveDat
                 | _ -> failwith "not supported"
 
-        match postMovementTick.AiMovementState with
-        | AiMovementState.MovingToPoint(dest) -> 
-            if Vec2.distance dest.Dest postMovementTick.Position < 5.0<m> then
-                {postMovementTick with AiMovementState = AiMovementState.Idle}
-            else
-                postMovementTick
-        | _ -> postMovementTick
+        let cleanupMovementState ship =
+            match ship.AiMovementState with
+            | AiMovementState.MovingToPoint(dest) -> 
+                if Vec2.distance dest.Dest ship.Position < 5.0<m> then
+                    {ship with AiMovementState = AiMovementState.Idle}
+                else
+                    ship
+            | _ -> ship
 
-    let updateShipAis ships =
+        let tick = Monads.state{
+            do! Monads.liftState tickMovementState
+            do! Monads.liftState cleanupMovementState
+            }
+        snd (Monads.runState tick ship)
+
+    let updateShipAis gameState =
         let movementTick ship =
             match ship.PlayerControlled with
             | true -> aiMovementTick ship
             | false -> ship
-        let postAiTick = ships |> List.map movementTick
+        let postAiTick = gameState.Ships |> List.map movementTick
 
-
-
-        //add stop-moving-to-point handler here
-        postAiTick
+        {gameState with Ships=postAiTick}
