@@ -18,11 +18,11 @@ module BasicTypes =
     [<DebuggerDisplay("x = {X} y = {Y}")>]
     type Vec2<[<Measure>] 'u> = {X : float<'u>; Y : float<'u>}
         with 
-            static member (*) (f : float<'i>, a) = {X=a.X*f; Y=a.Y*f}
-            static member (*) (a, f : float<'i>) = {X=a.X*f; Y=a.Y*f}
-            static member (/) (a, f : float) = {X=a.X/f; Y=a.Y/f}
-            static member (+) (a, b) = {X=a.X+b.X; Y=a.Y+b.Y}
-            static member (-) (a, b) = {X=a.X-b.X; Y=a.Y-b.Y}
+            static member ( *. ) (f : float<'i>, a) = {X=a.X*f; Y=a.Y*f}
+            static member ( *. ) (a, f : float<'i>) = {X=a.X*f; Y=a.Y*f}
+            static member ( /. ) (a, f : float) = {X=a.X/f; Y=a.Y/f}
+            static member ( +. ) (a, b) = {X=a.X+b.X; Y=a.Y+b.Y}
+            static member ( -. ) (a, b) = {X=a.X-b.X; Y=a.Y-b.Y}
 
             static member getFromAngle (angle:float<rad>) (length:float<'u>) =
                 let xunit = float <| Math.Cos (float angle)
@@ -79,8 +79,8 @@ module BasicTypes =
     [<DebuggerDisplay("Origin = {Origin} Width = {Width} Height = {Height}")>]
     type Rectangle<[<Measure>] 'u> = {Origin:Vec2<'u>; Width:float<'u>; Height:float<'u>}
         with
-            static member (+) (rect, vec) = {rect with Origin=rect.Origin + vec}
-            static member (+) (vec, rect) = {rect with Origin=rect.Origin + vec}
+            static member ( +. ) (rect, vec) = {rect with Origin=rect.Origin +. vec}
+            static member ( +. ) (vec, rect) = {rect with Origin=rect.Origin +. vec}
 
 
             static member fromVecs vec1 vec2 =
