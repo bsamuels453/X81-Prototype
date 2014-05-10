@@ -17,7 +17,7 @@ module GameTypes =
         Dimensions : Vec2<m>
         MaxVel: float<m/s>
         VelBoost: float<m/s>
-        SlowingFactor: float
+        AccelerationFactor: float
         MaxAngVel: float<rad/s>
         AngVelScale : float</s>
         AABBShape : Rectangle<m>
@@ -27,9 +27,18 @@ module GameTypes =
         | Red
         | Blue
 
+    type MoveToPoint = {
+        Dest : Vec2<m>
+        SlowingRadius : float<m>
+    }
+        with
+            static member construct dest shipPos =
+                let dist = Vec2<m>.distance dest shipPos
+                {Dest = dest; SlowingRadius = dist * 0.2}
+
     type AiMovementState =
         | Idle
-        | MovingToPoint of Vec2<m>
+        | MovingToPoint of MoveToPoint
         | KeepingShipAtRange of ObjectId * float<m>
 
     type AiCombatState =
