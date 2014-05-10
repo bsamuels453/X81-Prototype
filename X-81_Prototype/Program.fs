@@ -74,12 +74,12 @@ let main argv =
         let keyboardState = Control.pollKeyboard()
         mouseState <- Control.pollMouse mouseState win (ViewFuncs.screenToWorld gameState.GameView)
 
-        let newGameView = Update.zoomTick gameState mouseState
+        let newGameView = ControlUpdate.zoomTick gameState mouseState
         gameState <- {gameState with GameView = newGameView}
-        let newSelect = Update.selectionTick gameState mouseState
+        let newSelect = ControlUpdate.selectionTick gameState mouseState
         gameState <- {gameState with SelectedShips = newSelect}
 
-        let movedShips = Update.movementTarSelectTick gameState mouseState
+        let movedShips = ControlUpdate.movementTarSelectTick gameState mouseState
         gameState <- {gameState with Ships = movedShips}
 
         let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState

@@ -24,7 +24,7 @@ module SpriteGen =
         sprite.Texture <- texture
         sprite.Position <- Vec2<m>.toVec2f ship.Position
         sprite.Rotation <- float32 (radToDeg ship.Rotation)
-        sprite.Origin <- Vec2<m>.toVec2f (ship.Attribs.Dimensions/2.0)
+        sprite.Origin <- Vec2<m>.toVec2f (ship.Attribs.Dimensions /. 2.0)
         let draw state win =
             sprite.Draw (win,RenderStates.Default)
         let dispose() =
@@ -46,14 +46,14 @@ module SpriteGen =
 
     let private updateParticleSys extractShip forwardVec gameTimeRef (particleSys:SmokeParticleSystem) gameState _ spriteState =
         let ship:ShipState = extractShip gameState
-        let actualForward = (Vec2.unit (Vec2.rotate forwardVec ship.Rotation)) * 1.0<s>
+        let actualForward = (Vec2.unit (Vec2.rotate forwardVec ship.Rotation)) *. 1.0<s>
         let mag = Vec2.project ship.Acceleration actualForward
         if mag > 0.0 && (Vec2<_>.length ship.Acceleration) > 0.1 then
             particleSys.SetEmitterMag(float32 mag)
             particleSys.ResumeEmission()
             particleSys.SetEmitterPos(Vec2<m>.toVector2 ship.Position)
             particleSys.SetEmissionVec (Vec2<_>.toVector2 actualForward)
-            particleSys.SetBaseVelocity (Vec2<_>.toVector2 (ship.Velocity/2.0))
+            particleSys.SetBaseVelocity (Vec2<_>.toVector2 (ship.Velocity /. 2.0))
             ()
         else
             particleSys.PauseEmission()

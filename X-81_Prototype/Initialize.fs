@@ -20,7 +20,7 @@ module Initialize =
             Dimensions = dims
             MaxVel = 600.0<m/s>
             VelBoost = 300.0<m/s>
-            SlowingFactor = 20.0
+            AccelerationFactor = 20.0
             MaxAngVel = 5.0<rad/s>
             AngVelScale = 10.0</s>
             AABBShape = {Origin={X= -hypot/2.0; Y= -hypot/2.0}; Width=hypot; Height=hypot}
@@ -38,7 +38,7 @@ module Initialize =
             AiMovementState = AiMovementState.Idle
             AiCombatState = AiCombatState.Idle
             Affiliation = Affiliation.Blue
-            AABB = {X=0.0<m>; Y=0.0<m>} + defaultShipAttribs.AABBShape
+            AABB = {X=0.0<m>; Y=0.0<m>} +. defaultShipAttribs.AABBShape
             PlayerControlled = true
         }
 
@@ -54,7 +54,7 @@ module Initialize =
             AiMovementState = AiMovementState.Idle
             AiCombatState = AiCombatState.Idle
             Affiliation = Affiliation.Red
-            AABB = {X=200.0<m>; Y=50.0<m>} + defaultShipAttribs.AABBShape
+            AABB = {X=200.0<m>; Y=50.0<m>} +. defaultShipAttribs.AABBShape
             PlayerControlled = false
         }
 
