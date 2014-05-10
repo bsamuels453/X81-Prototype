@@ -82,7 +82,7 @@ let main argv =
         let movedShips = ControlUpdate.movementTarSelectTick gameState mouseState
         gameState <- {gameState with Ships = movedShips}
 
-        let newShips = Update.allShipsTick gameState.Ships keyboardState mouseState
+        let newShips = Update.updateShipAis gameState.Ships
         gameState <- {gameState with Ships=newShips}
 
         renderState <- Draw.updateRenderState renderState gameState mouseState resources

@@ -19,12 +19,12 @@ module Update =
         let newAABBpos = shipState.Attribs.AABBShape +. newShipPos
         (newShipPos, newShipSpeed, shipAccel, newAABBpos)
 
-    let private moveToTarget (shipState:ShipState) dest =
-        let (newShipRot, newShipRotVel) = rotationTick shipState dest
-        let newVel = MovementPhysics.getLinearVelCeil shipState (dest)
+    let private moveToTarget (shipState:ShipState) moveDat =
+        let (newShipRot, newShipRotVel) = rotationTick shipState moveDat.Dest
+        let newVel = MovementPhysics.getLinearVelCeil shipState (moveDat.Dest)
         let (newShipPos, newShipSpeed, newAccel, newAABB) = linearTick shipState (newVel)
 
-        Draw.addWorldDebugLine [newShipPos; dest]
+        Draw.addWorldDebugLine [newShipPos; moveDat.Dest]
         let l = (Vec2<m>.getFromAngle (newShipRot - Math.PI / 2.0 * 1.0<rad>) 50.0<m>) +. newShipPos
         Draw.addWorldDebugLine [l;newShipPos]
 
@@ -41,36 +41,29 @@ module Update =
         
         {ship with Position=newShipPos; Velocity=newShipSpeed; Acceleration=shipAccel; AABB=newAABBpos}
 
-    let private shipAiTick ship =
+    let private aiMovementTick ship =
         let postMovementTick = 
             match ship.AiMovementState with
                 | AiMovementState.Idle -> tickIdleShip ship
-                | AiMovementState.MovingToPoint(pt) -> moveToTarget ship pt.Dest
-                | _ -> failwith "not supported"
-        let postCombatTick =
-            match ship.AiCombatState with
-                | AiCombatState.Idle -> postMovementTick
+                | AiMovementState.MovingToPoint(moveDat) -> moveToTarget ship moveDat
                 | _ -> failwith "not supported"
 
-        postCombatTick
+        match postMovementTick.AiMovementState with
+        | AiMovementState.MovingToPoint(dest) -> 
+            if Vec2.distance dest.Dest postMovementTick.Position < 5.0<m> then
+                {postMovementTick with AiMovementState = AiMovementState.Idle}
+            else
+                postMovementTick
+        | _ -> postMovementTick
 
-
-    let allShipsTick curShips keyboardState mouseState=
-        let aiTick ship =
+    let updateShipAis ships =
+        let movementTick ship =
             match ship.PlayerControlled with
-            | true -> shipAiTick ship
+            | true -> aiMovementTick ship
             | false -> ship
-        let postAiTick = curShips |> List.map aiTick
+        let postAiTick = ships |> List.map movementTick
 
-        let postAiCleanup = postAiTick |> List.map ( fun ship ->
-            match ship.AiMovementState with
-            | AiMovementState.MovingToPoint(dest) -> 
-                if Vec2.distance dest.Dest ship.Position < 5.0<m> then
-                    {ship with AiMovementState = AiMovementState.Idle}
-                else
-                    ship
-            | _ -> ship
-        )
+
 
         //add stop-moving-to-point handler here
-        postAiCleanup
+        postAiTick
