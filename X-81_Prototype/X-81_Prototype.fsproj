@@ -116,6 +116,10 @@
       <SubType>
       </SubType>
     </Compile>
+    <Compile Include="ControlUpdate.fs">
+      <SubType>
+      </SubType>
+    </Compile>
     <Compile Include="Update.fs">
       <SubType>
       </SubType>
