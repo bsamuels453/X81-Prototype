@@ -163,7 +163,7 @@ module SpriteGen =
             match mouseState.Left.DraggedArea with
             | Some(area) ->
                 doDraw := true
-                sprite.Position <- Vec2<_>.toVec2f mouseState.Left.DragOrigin
+                sprite.Position <- Vec2<_>.toVec2f area.Origin
                 sprite.Size <- new Vector2f(float32 area.Width, float32 area.Height)
             | None -> 
                 doDraw := false               
