@@ -10,4 +10,7 @@ module Consts =
     let zoomInLimit = 0.2<m/px>
     let zoomOutLimit = 3.0<m/px>
 
+    let horizScrollSpeed = 500.0<px/s>
+    let vertScrollSpeed = 500.0<px/s>
+
     ()

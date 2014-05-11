@@ -76,6 +76,7 @@ let main argv =
 
         let update = Monads.state {
             do! Monads.liftState (ControlUpdate.zoomTick newMouseState)
+            do! Monads.liftState (ControlUpdate.panTick keyboardState)
             do! Monads.liftState (ControlUpdate.selectionTick newMouseState)
             do! Monads.liftState (ControlUpdate.movementTarSelectTick newMouseState)
             do! Monads.liftState (Update.updateShipAis)

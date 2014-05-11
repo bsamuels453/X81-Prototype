@@ -1,6 +1,7 @@
 ﻿namespace global
 
 module ControlUpdate =
+    open SFML.Window
     let selectionTick mouseState gameState =
         let newSelectedShips = 
             if mouseState.Left.DragCompleted then
@@ -54,3 +55,38 @@ module ControlUpdate =
             {gameState with GameView = vs}
         else
             gameState
+
+    let panTick (keyboardState:KeyStateChange array) gameState =
+        let wState = Control.getKeyState keyboardState Keyboard.Key.W
+        let aState = Control.getKeyState keyboardState Keyboard.Key.A
+        let sState = Control.getKeyState keyboardState Keyboard.Key.S
+        let dState = Control.getKeyState keyboardState Keyboard.Key.D
+
+        let timeDelta = 1.0<s>/60.0
+
+        let vertDelta =
+            match (wState.KeyState, sState.KeyState) with
+            | (KeyState.Pressed, KeyState.Pressed) -> 0.0<s>
+            | (KeyState.Released, KeyState.Released) -> 0.0<s>
+            | (KeyState.Pressed, KeyState.Released) -> -timeDelta
+            | (KeyState.Released, KeyState.Pressed) -> timeDelta
+
+        let horizDelta = 
+            match (aState.KeyState, dState.KeyState) with
+            | (KeyState.Pressed, KeyState.Pressed) -> 0.0<s>
+            | (KeyState.Released, KeyState.Released) -> 0.0<s>
+            | (KeyState.Pressed, KeyState.Released) -> -timeDelta
+            | (KeyState.Released, KeyState.Pressed) -> timeDelta
+
+        
+        let view = gameState.GameView
+        let scale = view.ViewScale
+
+        let scaledDelta = {
+            X=horizDelta * scale * Consts.horizScrollSpeed; 
+            Y=vertDelta * scale * Consts.vertScrollSpeed}
+
+        let newBB = {view.BoundingBox with Origin = view.BoundingBox.Origin +. scaledDelta}
+
+        let newView = {view with BoundingBox = newBB}
+        {gameState with GameView = newView}
