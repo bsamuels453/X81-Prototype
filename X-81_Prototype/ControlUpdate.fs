@@ -33,17 +33,19 @@ module ControlUpdate =
         {gameState with SelectedShips = newSelectedShips}
 
 
-    let movementTarSelectTick mouseState gameState=
+    let rightClickTrig mouseState gameState=
+        let moveShipToPoint (ship:ShipState) =
+            if List.exists ship.Id.Equals gameState.SelectedShips then
+                let dest = MoveToPoint.construct mouseState.WorldPosition ship.Position
+                {ship with AiMovementState = AiMovementState.MovingToPoint(dest)}
+            else
+                ship
+
+
+
         let updatedShips = 
             if mouseState.Right.ClickCompleted then
-                gameState.Ships |> List.map (
-                    fun ship ->
-                        if List.exists ship.Id.Equals gameState.SelectedShips then
-                            let dest = MoveToPoint.construct mouseState.WorldPosition ship.Position
-                            {ship with AiMovementState = AiMovementState.MovingToPoint(dest)}
-                        else
-                            ship
-                )
+                gameState.Ships |> List.map moveShipToPoint
             else
                 gameState.Ships
         {gameState with Ships = updatedShips}

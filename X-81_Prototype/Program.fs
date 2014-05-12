@@ -78,9 +78,9 @@ let main argv =
             do! Monads.liftState (ControlUpdate.zoomTick newMouseState)
             do! Monads.liftState (ControlUpdate.panTick keyboardState)
             do! Monads.liftState (ControlUpdate.selectionTick newMouseState)
-            do! Monads.liftState (ControlUpdate.movementTarSelectTick newMouseState)
+            do! Monads.liftState (ControlUpdate.rightClickTrig newMouseState)
             do! Monads.liftState (Update.updateShipAis)
-            do! Monads.liftState (ControlUpdate.movementTarSelectTick newMouseState)
+            do! Monads.liftState (ControlUpdate.rightClickTrig newMouseState)
         }
 
         gameState <- snd (Monads.runState update gameState)
