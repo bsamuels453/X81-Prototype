@@ -45,6 +45,11 @@ module GameTypes =
         | Idle
         | AttackingEnemShip of ObjectId
 
+    type AiSelfControlState =
+        | Passive
+        | Aggressive
+        | Defensive
+
     type ShipState = {
         Id : ObjectId
         Position : Vec2<m>
