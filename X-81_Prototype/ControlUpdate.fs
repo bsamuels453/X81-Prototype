@@ -37,11 +37,10 @@ module ControlUpdate =
         let moveShipToPoint (ship:ShipState) =
             if List.exists ship.Id.Equals gameState.SelectedShips then
                 let dest = MoveToPoint.construct mouseState.WorldPosition ship.Position
+                System.Console.WriteLine("ship destination set to: " + string mouseState.WorldPosition.X + "," + string mouseState.WorldPosition.Y)
                 {ship with AiMovementState = AiMovementState.MovingToPoint(dest)}
             else
                 ship
-
-
 
         let updatedShips = 
             if mouseState.Right.ClickCompleted then

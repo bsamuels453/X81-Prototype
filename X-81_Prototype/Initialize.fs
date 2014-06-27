@@ -64,6 +64,7 @@ module Initialize =
             GameView = ViewFuncs.createDefaultView()
             SelectedShips = []
             Ships = [genPlayerShip(); genEnemyShip()]
+            ActiveProjectiles = []
         }
         
     ()

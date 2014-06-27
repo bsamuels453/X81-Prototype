@@ -106,6 +106,11 @@ module Control =
         else 
             onMouseHeldUp()
 
+    let convertDragToClick button =
+        if button.DragCompleted then
+            {button with DragCompleted = false; ClickCompleted = true}
+        else
+            button
 
     let pollMouse prevMouseState win screenToWorld=
         let leftPressed = Mouse.IsButtonPressed Mouse.Button.Left
@@ -118,7 +123,7 @@ module Control =
         wheelDelta <- 0
 
         let newLeft = updateButton worldPos leftPressed prevMouseState.Left
-        let newRight = updateButton worldPos rightPressed prevMouseState.Right
+        let newRight = convertDragToClick (updateButton worldPos rightPressed prevMouseState.Right)
         let newMiddle = updateButton worldPos middlePressed prevMouseState.Middle
 
         {

@@ -50,6 +50,12 @@ module GameTypes =
         | Aggressive
         | Defensive
 
+    type Projectile = {
+        DistanceCovered : float<m>
+        Position : Vec2<m>
+        Velocity : Vec2<m/s>
+    }
+
     type ShipState = {
         Id : ObjectId
         Position : Vec2<m>
@@ -69,4 +75,5 @@ module GameTypes =
         GameView : GameView
         SelectedShips : ObjectId list
         Ships : ShipState list
+        ActiveProjectiles : Projectile list
     }

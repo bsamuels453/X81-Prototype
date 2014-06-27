@@ -80,7 +80,6 @@ let main argv =
             do! Monads.liftState (ControlUpdate.selectionTick newMouseState)
             do! Monads.liftState (ControlUpdate.rightClickTrig newMouseState)
             do! Monads.liftState (Update.updateShipAis)
-            do! Monads.liftState (ControlUpdate.rightClickTrig newMouseState)
         }
 
         gameState <- snd (Monads.runState update gameState)
@@ -91,6 +90,6 @@ let main argv =
 
         win.Display()
         let idleTime = getIdleTime stopwatch
-        executeEveryHundred (fun () -> System.Console.WriteLine("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice"))
+        //executeEveryHundred (fun () -> System.Console.WriteLine("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice"))
         stopwatch.Reset()
     0 // return an integer exit code
