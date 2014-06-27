@@ -64,6 +64,7 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Log.fs" />
     <Compile Include="BasicTypes.fs">
       <SubType>
       </SubType>

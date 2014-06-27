@@ -90,6 +90,6 @@ let main argv =
 
         win.Display()
         let idleTime = getIdleTime stopwatch
-        //executeEveryHundred (fun () -> System.Console.WriteLine("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice"))
+        executeEveryHundred (fun () -> Log.debug ("Idle during " + string (100.0 - idleTime * 100.0) + "% of 16.6ms timeslice") Log.Category.System)
         stopwatch.Reset()
     0 // return an integer exit code
