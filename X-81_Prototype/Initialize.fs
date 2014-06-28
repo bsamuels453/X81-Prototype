@@ -62,10 +62,12 @@ module Initialize =
         }
 
     let genDefaultGameState view =
-        
+        //let range = [1..700]
+        //let ships = List.fold (fun res item -> (genPlayerShip item) :: res ) [] range
         {
             GameView = ViewFuncs.createDefaultView()
             SelectedShips = []
+
             Ships = [genPlayerShip 5; genPlayerShip 6;genPlayerShip 7; genEnemyShip()]
             ActiveProjectiles = []
         }
