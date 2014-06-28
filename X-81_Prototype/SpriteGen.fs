@@ -117,17 +117,23 @@ module SpriteGen =
     let private showAABBs gameState =
         gameState.Ships |> List.map showShipAABB |> ignore
 
-    let genTargetGhost() =
+    let genSelectedShipMarkers() =
         let doDraw = ref false
 
         let updateGhost (sprite:RectangleShape) gameState _ drawableState =
             match gameState.SelectedShips with
             |[] -> 
                 doDraw := false
-            |[shipId] ->
+            |_ ->
                 doDraw := true
-                let ship = extractShip gameState shipId
-                sprite.Position <- Vec2<_>.toVec2f (Rectangle.center ship.AABB)
+                let shipAABBs = 
+                    gameState.SelectedShips 
+                    |> List.map (extractShip gameState) 
+                    |> List.map (fun s -> Rectangle.center s.AABB)
+
+                let sum = List.fold (fun sum aabb -> sum +. aabb)  (Vec2<m>.zero()) shipAABBs
+                let avgPos = sum /. (float <| List.length shipAABBs)
+                sprite.Position <- Vec2<_>.toVec2f avgPos
             drawableState
 
         let createGhost (resources:GameResources) =
@@ -157,7 +163,7 @@ module SpriteGen =
         Draw.queueDrawableAddition (createGhost)
         ()
 
-    let genSelectionGhost() =
+    let genSelectionMarquee() =
         let doDraw = ref true
         let updateGhost (sprite:RectangleShape) _ mouseState drawableState =
             match mouseState.Left.DraggedArea with
@@ -192,14 +198,14 @@ module SpriteGen =
         Draw.queueDrawableAddition (createGhost)
 
     let genDefaultScene gameState gameTimeRef=
-        genPlayerShipSpriteState gameState.Ships.[0]
-        genEnemyShipSpriteState gameState.Ships.[1]
+        gameState.Ships |> List.map genPlayerShipSpriteState |> ignore
+
         //genDefaultEnginePSystems {X=0.0<m/s^2>; Y= -1.0<m/s^2>} gameTimeRef
         //genDefaultEnginePSystems {X=0.0<m/s^2>; Y= 1.0<m/s^2>} gameTimeRef
         //genDefaultEnginePSystems {X=1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         //genDefaultEnginePSystems {X= -1.0<m/s^2>; Y= 0.0<m/s^2>} gameTimeRef
         showAABBs gameState
-        genTargetGhost()
-        genSelectionGhost()
+        genSelectedShipMarkers()
+        genSelectionMarquee()
         ()
     ()

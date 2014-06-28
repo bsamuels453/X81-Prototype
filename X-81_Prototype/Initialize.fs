@@ -6,6 +6,7 @@ module Initialize =
     open SFML.Window;
     open SFML.Graphics;
     open MParticles.MGObjects;
+    open System;
 
     let initWindow() =
         let win = new RenderWindow(new VideoMode(uint32 Consts.screenWidth,uint32 Consts.screenHeight), "X-81 Prototype")
@@ -26,10 +27,12 @@ module Initialize =
             AABBShape = {Origin={X= -hypot/2.0; Y= -hypot/2.0}; Width=hypot; Height=hypot}
         }
 
-    let genPlayerShip() : ShipState=
+    let genPlayerShip s : ShipState=
+        let r = new Random(s)
+        let offset = {X=(float <| r.Next(0,100)-50) * 1.0<m>; Y=(float <| r.Next(0,100)-50) * 1.0<m>}
         {
             Id = GameFuncs.generateObjectId(); 
-            Position = {X=0.0<m>; Y=0.0<m>}
+            Position = {X=0.0<m>; Y=0.0<m>} +. offset
             Velocity = {X=0.0<m/s>; Y=0.0<m/s>}
             Rotation = 0.0<rad>
             RotVelocity = 0.0<rad/s>
@@ -63,7 +66,7 @@ module Initialize =
         {
             GameView = ViewFuncs.createDefaultView()
             SelectedShips = []
-            Ships = [genPlayerShip(); genEnemyShip()]
+            Ships = [genPlayerShip 5; genPlayerShip 6;genPlayerShip 7; genEnemyShip()]
             ActiveProjectiles = []
         }
         
