@@ -89,6 +89,8 @@
       <SubType>
       </SubType>
     </Compile>
+    <Compile Include="AiTypes.fs" />
+    <Compile Include="StateTypes.fs" />
     <Compile Include="ControlTypes.fs">
       <SubType>
       </SubType>
