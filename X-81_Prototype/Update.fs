@@ -31,6 +31,7 @@ module Update =
         {shipState with Position=newShipPos; Velocity=newShipSpeed; Rotation=newShipRot; RotVelocity=newShipRotVel; Acceleration=newAccel; AABB=newAABB}
 
     let private tickIdleShip ship =
+        //not sure if this is necessary anymore with tickDeceleratingShip handling most of the decel termination
         let friction = MovementPhysics.applyLinFriction ship.Velocity ship.Acceleration
         let newShipSpeed = ship.Velocity +. friction *. 1.0<s>
 
@@ -41,18 +42,24 @@ module Update =
         
         {ship with Position=newShipPos; Velocity=newShipSpeed; Acceleration=shipAccel; AABB=newAABBpos}
 
+    let private tickDeceleratingShip ship =
+        let newvel = ship.Velocity /. 2.0
+        {ship with Velocity = newvel}
+
     let private aiMovementTick ship =
         let tickMovementState ship =
             match ship.AiMovementState with
                 | AiMovementState.Idle -> tickIdleShip ship
-                | AiMovementState.MovingToPoint(moveDat) -> moveToTarget ship moveDat
+                | AiMovementState.MovingToPoint(destDat) -> moveToTarget ship destDat
+                | AiMovementState.DeceleratingToStop -> tickDeceleratingShip ship
                 | _ -> failwith "not supported"
 
         let cleanupMovementState ship =
             match ship.AiMovementState with
             | AiMovementState.MovingToPoint(dest) -> 
-                if Vec2.distance dest.Dest ship.Position < 5.0<m> && (Vec2<m/s>.length ship.Velocity) < 3.0<m/s> then
-                    {ship with AiMovementState = AiMovementState.Idle}
+                if Vec2.distance dest.Dest ship.Position < 50.0<m> && (Vec2<m/s>.length ship.Velocity) < 50.0<m/s> then
+                    Log.debug "deceleration state entered" Log.Category.AI
+                    {ship with AiMovementState = AiMovementState.DeceleratingToStop}
                 else
                     ship
             | _ -> ship

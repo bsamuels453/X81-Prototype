@@ -40,6 +40,7 @@ module GameTypes =
         | Idle
         | MovingToPoint of MoveToPoint
         | KeepingShipAtRange of ObjectId * float<m>
+        | DeceleratingToStop
 
     type AiCombatState =
         | Idle
