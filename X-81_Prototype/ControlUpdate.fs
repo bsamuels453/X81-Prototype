@@ -52,8 +52,24 @@ module ControlUpdate =
 
     let zoomTick mouseState gameState =
         if mouseState.ScrollWheelDelta <> 0 then
-            let vs = modifyViewScale gameState.GameView ((float mouseState.ScrollWheelDelta) * -0.2<m/px>)
-            {gameState with GameView = vs}
+            let scaledView = modifyViewScale gameState.GameView ((float mouseState.ScrollWheelDelta) * -0.2<m/px>)
+            
+            //we only want to re-adjust center when zooming in
+            if mouseState.ScrollWheelDelta > 0 then
+                let xOffset = scaledView.BoundingBox.Width / 2.0
+                let yOffset = scaledView.BoundingBox.Height / 2.0
+                let mousePos = mouseState.WorldPosition -. {X=xOffset; Y=yOffset}
+
+                let curCenter = scaledView.BoundingBox.Origin
+                //proportional
+                let newcenter = (curCenter *. 0.75) +. (mousePos *. 0.25)
+
+                let newbb = {scaledView.BoundingBox with Origin = newcenter}
+                let offsetvs = {scaledView with BoundingBox=newbb}
+            
+                {gameState with GameView = offsetvs}
+            else
+                {gameState with GameView = scaledView}
         else
             gameState
 
