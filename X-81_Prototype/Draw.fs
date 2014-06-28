@@ -4,6 +4,7 @@ module Draw =
     open SFML.Window;
     open SFML.Graphics;
     open SFML.Audio;
+    open Resource;
 
     let mutable private drawablesToUpdate:ObjectId list = []
     let mutable private drawablesToAdd:(GameResources -> DrawableState) list = []

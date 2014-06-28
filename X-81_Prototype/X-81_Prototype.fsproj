@@ -89,21 +89,22 @@
       <SubType>
       </SubType>
     </Compile>
+    <Compile Include="GameFuncs.fs">
+      <SubType>
+      </SubType>
+    </Compile>
+    <Compile Include="Resource.fs">
+      <SubType>
+      </SubType>
+    </Compile>
     <Compile Include="AiTypes.fs" />
+    <Compile Include="Ai.fs" />
     <Compile Include="StateTypes.fs" />
     <Compile Include="ControlTypes.fs">
       <SubType>
       </SubType>
     </Compile>
     <Compile Include="DrawTypes.fs">
-      <SubType>
-      </SubType>
-    </Compile>
-    <Compile Include="GameFuncs.fs">
-      <SubType>
-      </SubType>
-    </Compile>
-    <Compile Include="Resource.fs">
       <SubType>
       </SubType>
     </Compile>

@@ -3,6 +3,7 @@
 module Update =
     open System;
     open SFML.Window;
+    open AiTypes;
 
     let private rotationTick (shipState:ShipState) dest=
         let rotVel = MovementPhysics.calcRotVelFromTargAngle shipState dest
@@ -49,17 +50,17 @@ module Update =
     let private aiMovementTick ship =
         let tickMovementState ship =
             match ship.AiMovementState with
-                | AiMovementState.Idle -> tickIdleShip ship
-                | AiMovementState.MovingToPoint(destDat) -> moveToTarget ship destDat
-                | AiMovementState.DeceleratingToStop -> tickDeceleratingShip ship
+                | AiMicroMovementState.Idle -> tickIdleShip ship
+                | AiMicroMovementState.MovingToPoint(destDat) -> moveToTarget ship destDat
+                | AiMicroMovementState.DeceleratingToStop -> tickDeceleratingShip ship
                 | _ -> failwith "not supported"
 
         let cleanupMovementState ship =
             match ship.AiMovementState with
-            | AiMovementState.MovingToPoint(dest) -> 
+            | AiMicroMovementState.MovingToPoint(dest) -> 
                 if Vec2.distance dest.Dest ship.Position < 50.0<m> && (Vec2<m/s>.length ship.Velocity) < 50.0<m/s> then
                     Log.debug "deceleration state entered" Log.Category.AI
-                    {ship with AiMovementState = AiMovementState.DeceleratingToStop}
+                    {ship with AiMovementState = AiMicroMovementState.DeceleratingToStop}
                 else
                     ship
             | _ -> ship

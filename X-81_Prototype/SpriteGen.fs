@@ -8,6 +8,7 @@ module SpriteGen =
     open MParticles.MGObjects;
     open MParticles.Renderers.SFML;
     open ParticleSys;
+    open Resource;
 
     let private extractShip gameState id =
         gameState.Ships |> List.find (fun s -> s.Id = id)

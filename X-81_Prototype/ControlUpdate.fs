@@ -2,6 +2,7 @@
 
 module ControlUpdate =
     open SFML.Window
+    open AiTypes;
     let selectionTick mouseState gameState =
         let newSelectedShips = 
             if mouseState.Left.DragCompleted then
@@ -38,7 +39,7 @@ module ControlUpdate =
             if List.exists ship.Id.Equals gameState.SelectedShips then
                 let dest = MoveToPoint.construct mouseState.WorldPosition ship.Position
                 Log.debug ("ship destination set to: " + string mouseState.WorldPosition.X + "," + string mouseState.WorldPosition.Y) Log.Category.Navigation
-                {ship with AiMovementState = AiMovementState.MovingToPoint(dest)}
+                {ship with AiMovementState = AiMicroMovementState.MovingToPoint(dest)}
             else
                 ship
 

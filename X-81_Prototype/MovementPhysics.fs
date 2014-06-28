@@ -3,6 +3,7 @@
 module MovementPhysics =
     open System;
     open SFML.Window;
+    open AiTypes;
 
     let private calcVelCeil (curVel:float<m/s>) shipAttribs =
 

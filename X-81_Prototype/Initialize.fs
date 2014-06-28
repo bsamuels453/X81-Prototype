@@ -7,6 +7,7 @@ module Initialize =
     open SFML.Graphics;
     open MParticles.MGObjects;
     open System;
+    open AiTypes;
 
     let initWindow() =
         let win = new RenderWindow(new VideoMode(uint32 Consts.screenWidth,uint32 Consts.screenHeight), "X-81 Prototype")
@@ -38,8 +39,8 @@ module Initialize =
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
             Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
-            AiMovementState = AiMovementState.Idle
-            AiCombatState = AiCombatState.Idle
+            AiMovementState = AiMicroMovementState.Idle
+            AiCombatState = AiMicroCombatState.Idle
             Affiliation = Affiliation.Blue
             AABB = {X=0.0<m>; Y=0.0<m>} +. defaultShipAttribs.AABBShape
             PlayerControlled = true
@@ -54,8 +55,8 @@ module Initialize =
             RotVelocity = 0.0<rad/s>
             Attribs = defaultShipAttribs
             Acceleration = {X=0.0<m/s^2>; Y=0.0<m/s^2>}
-            AiMovementState = AiMovementState.Idle
-            AiCombatState = AiCombatState.Idle
+            AiMovementState = AiMicroMovementState.Idle
+            AiCombatState = AiMicroCombatState.Idle
             Affiliation = Affiliation.Red
             AABB = {X=200.0<m>; Y=50.0<m>} +. defaultShipAttribs.AABBShape
             PlayerControlled = false
