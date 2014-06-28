@@ -119,24 +119,9 @@ module SpriteGen =
 
     let genSelectedShipMarkers() =
         let doDraw = ref false
+        let sprites:RectangleShape list ref = ref []
 
-        let updateGhost (sprite:RectangleShape) gameState _ drawableState =
-            match gameState.SelectedShips with
-            |[] -> 
-                doDraw := false
-            |_ ->
-                doDraw := true
-                let shipAABBs = 
-                    gameState.SelectedShips 
-                    |> List.map (extractShip gameState) 
-                    |> List.map (fun s -> Rectangle.center s.AABB)
-
-                let sum = List.fold (fun sum aabb -> sum +. aabb)  (Vec2<m>.zero()) shipAABBs
-                let avgPos = sum /. (float <| List.length shipAABBs)
-                sprite.Position <- Vec2<_>.toVec2f avgPos
-            drawableState
-
-        let createGhost (resources:GameResources) =
+        let generateSprite() =
             let sprite = new RectangleShape(new Vector2f(50.0f, 50.0f))
             sprite.Position <- new Vector2f(0.0f, 0.0f)
             sprite.Rotation <- 0.0f
@@ -144,18 +129,43 @@ module SpriteGen =
             sprite.OutlineThickness <- 3.0f
             sprite.FillColor <- new Color(0uy, 0uy, 0uy, 0uy)
             sprite.OutlineColor <- new Color(0uy, 255uy, 0uy, 255uy)
+            sprite
+
+        let resizeSpriteList newSize sprites = 
+            let diff = newSize - List.length sprites
+            if diff < 0 then
+                let chopList ret (item:RectangleShape) = if List.length ret < newSize then item :: ret else item.Dispose(); ret
+                List.fold chopList [] sprites
+            else
+                let newSprites = List.init diff (fun i -> generateSprite())
+                sprites @ newSprites
+
+        let updateGhost gameState _ drawableState =
+            match gameState.SelectedShips with
+            |[] -> 
+                doDraw := false
+            |_ ->
+                doDraw := true
+                if List.length gameState.SelectedShips <> List.length !sprites then
+                    sprites := resizeSpriteList (List.length gameState.SelectedShips) !sprites
+                
+                let updateSprite (sprite:RectangleShape) id = sprite.Position <- Vec2<_>.toVec2f (extractShip gameState id).Position
+                List.map2 (fun (sprite:RectangleShape) id ->  updateSprite sprite id )(!sprites) gameState.SelectedShips |> ignore  
+            drawableState
+
+        let createGhost (resources:GameResources) =
 
             let draw state win =
                 if !doDraw then
-                    sprite.Draw(win, RenderStates.Default)
+                    (!sprites) |> List.map (fun spr -> spr.Draw(win, RenderStates.Default)) |> ignore
                 else ()
 
-            let dispose() = sprite.Dispose()
+            let dispose() = (!sprites) |> List.map (fun s -> s.Dispose()) |> ignore
 
             {
                 Id=GameFuncs.generateObjectId();
                 ZLayer= 1.0;
-                Update=(updateGhost sprite);
+                Update=updateGhost;
                 AutoUpdate=true;
                 Draw = draw;
                 Dispose = dispose
