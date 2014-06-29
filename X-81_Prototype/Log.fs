@@ -38,5 +38,6 @@ module Log =
     let warn str cat =
         write str cat
 
-    let fatal str cat =
+    let fatal str cat=
         write str cat
+        failwith str
