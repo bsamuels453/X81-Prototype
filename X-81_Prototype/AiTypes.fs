@@ -30,18 +30,22 @@ module AiTypes =
 
 
     type FleetFormation = 
-        | Default
+        | Irrelevant
         | Scrambled
         | SquareGrid
 
     type AiMoveInstruction = {
         Id : AiId
         Target : Vec2<m>
-        Formation : FleetFormation
+        DestFormationType : FleetFormation
     }
 
+    type AiInstructions =
+    | AiMoveInstruction of AiMoveInstruction
+
     type FleetFormationDetail = {
-        Type : FleetFormation
+        DestFormationType : FleetFormation
+        ShipDestLookup : (ObjectId * Vec2<m>) list
     }
 
     type AiMacroMovementState =
